@@ -13,6 +13,34 @@ except ImportError:
     GRAPHITI_AVAILABLE = False
 
 
+def _fix_response_schema(data: dict, schema: dict) -> dict:
+    properties = schema.get('properties', {})
+    for key, prop in properties.items():
+        if key not in data:
+            continue
+        expected_type = prop.get('type', '')
+        if expected_type == 'array' and not isinstance(data[key], list):
+            if isinstance(data[key], dict):
+                items = []
+                for v in data[key].values():
+                    if isinstance(v, dict):
+                        items.append(v)
+                    elif isinstance(v, list):
+                        items.extend(v)
+                data[key] = items
+            elif data[key] is None:
+                data[key] = []
+            else:
+                data[key] = [data[key]]
+        elif expected_type == 'array' and isinstance(data[key], list):
+            item_type = prop.get('items', {}).get('type', '')
+            if item_type == 'object':
+                data[key] = [
+                    v if isinstance(v, dict) else {'value': v} for v in data[key]
+                ]
+    return data
+
+
 class GLMCompatibleClient(OpenAIGenericClient if GRAPHITI_AVAILABLE else object):
     MAX_RETRIES: int = 2
 
@@ -38,6 +66,7 @@ class GLMCompatibleClient(OpenAIGenericClient if GRAPHITI_AVAILABLE else object)
                 openai_messages.append({'role': 'system', 'content': content})
 
         response_format = {'type': 'json_object'}
+        schema = None
 
         if response_model is not None:
             schema = response_model.model_json_schema()
@@ -57,10 +86,16 @@ class GLMCompatibleClient(OpenAIGenericClient if GRAPHITI_AVAILABLE else object)
 
         result = response.choices[0].message.content or ''
         try:
-            return json.loads(result)
+            parsed = json.loads(result)
         except json.JSONDecodeError:
             start = result.find('{')
             end = result.rfind('}') + 1
             if start >= 0 and end > start:
-                return json.loads(result[start:end])
-            raise ValueError(f'无法解析LLM返回的JSON: {result[:200]}') from None
+                parsed = json.loads(result[start:end])
+            else:
+                raise ValueError(f'无法解析LLM返回的JSON: {result[:200]}') from None
+
+        if schema is not None and isinstance(parsed, dict):
+            parsed = _fix_response_schema(parsed, schema)
+
+        return parsed

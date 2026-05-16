@@ -1,11 +1,26 @@
 import json
 import logging
+import re
 
 from src.config.settings import FEATURE_NAME_MAP
 from src.data.structurer import MachiningFeature
 from src.graph.glm_client import GLMClient
 
 logger = logging.getLogger(__name__)
+
+
+def _clean_numeric(value) -> float | None:
+    if value is None:
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, str):
+        value = value.strip()
+        m = re.search(r'[\d]+\.?[\d]*', value)
+        if m:
+            return float(m.group())
+        return None
+    return None
 
 
 class FeatureExtractor:
@@ -25,6 +40,7 @@ class FeatureExtractor:
                     '3. 如果文本没有明确尺寸，根据零件类型推断典型值（如螺栓直径6-24mm，轴直径20-80mm）\n'
                     '4. 精度默认IT7-IT8，粗糙度默认1.6-6.3\n'
                     '5. 每个特征必须包含feature_type(中文)、length、width、diameter、depth、precision、roughness字段\n'
+                    '6. 所有数值字段(length/width/diameter/depth/roughness)必须是纯数字，不要包含单位或文字\n'
                     '请以JSON格式输出，包含一个features列表。'
                 ),
             },
@@ -46,12 +62,12 @@ class FeatureExtractor:
                 feature_type = self._normalize_feature_type(feature_type)
                 feature = MachiningFeature(
                     feature_type=feature_type,
-                    length=item.get('length', item.get('长度')),
-                    width=item.get('width', item.get('宽度')),
-                    diameter=item.get('diameter', item.get('直径')),
-                    depth=item.get('depth', item.get('深度')),
+                    length=_clean_numeric(item.get('length', item.get('长度'))),
+                    width=_clean_numeric(item.get('width', item.get('宽度'))),
+                    diameter=_clean_numeric(item.get('diameter', item.get('直径'))),
+                    depth=_clean_numeric(item.get('depth', item.get('深度'))),
                     precision=item.get('precision', item.get('精度')),
-                    roughness=item.get('roughness', item.get('粗糙度')),
+                    roughness=_clean_numeric(item.get('roughness', item.get('粗糙度'))),
                 )
                 features.append(feature)
             except Exception as e:
@@ -75,12 +91,12 @@ class FeatureExtractor:
             )
             return MachiningFeature(
                 feature_type=feature_type,
-                length=data.get('length', data.get('长度')),
-                width=data.get('width', data.get('宽度')),
-                diameter=data.get('diameter', data.get('直径')),
-                depth=data.get('depth', data.get('深度')),
+                length=_clean_numeric(data.get('length', data.get('长度'))),
+                width=_clean_numeric(data.get('width', data.get('宽度'))),
+                diameter=_clean_numeric(data.get('diameter', data.get('直径'))),
+                depth=_clean_numeric(data.get('depth', data.get('深度'))),
                 precision=data.get('precision', data.get('精度')),
-                roughness=data.get('roughness', data.get('粗糙度')),
+                roughness=_clean_numeric(data.get('roughness', data.get('粗糙度'))),
             )
         except Exception as e:
             logger.warning(f'结构化特征提取失败: {e}')

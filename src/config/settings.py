@@ -24,7 +24,7 @@ RAW_DATA_DIR = Path(os.getenv('RAW_DATA_DIR', str(DATA_DIR / 'raw')))
 PROCESSED_DATA_DIR = Path(os.getenv('PROCESSED_DATA_DIR', str(DATA_DIR / 'processed')))
 ANNOTATED_DATA_DIR = Path(os.getenv('ANNOTATED_DATA_DIR', str(DATA_DIR / 'annotated')))
 
-TMCAD_DATASET_PATH = Path(os.getenv('TMCAD_DATASET_PATH', str(BASE_DIR / 'TMCAD_dataset_v2' / 'mechcad' / 'mechcad')))
+TMCAD_DATASET_PATH = Path(os.getenv('TMCAD_DATASET_PATH', str(BASE_DIR / 'TMCAD_dataset_v2' / 'mechcad')))
 
 PART_CATEGORY_MAP = {
     'bolt': '螺栓',
