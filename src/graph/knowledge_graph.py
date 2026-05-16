@@ -246,6 +246,26 @@ class CADKnowledgeGraph:
             logger.warning(f'知识图谱事实检索失败: {e}')
             return []
 
+    async def clear_all_data(self) -> bool:
+        try:
+            from neo4j import GraphDatabase
+
+            driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
+            with driver.session() as session:
+                session.run('MATCH (n) DETACH DELETE n')
+                result = session.run('MATCH (n) RETURN count(n) AS cnt')
+                record = result.single()
+                remaining = record['cnt'] if record else -1
+            driver.close()
+            if remaining == 0:
+                logger.info('Neo4j数据库已清空（所有节点和关系已删除）')
+                return True
+            logger.warning(f'Neo4j清空后仍有{remaining}个节点')
+            return False
+        except Exception as e:
+            logger.warning(f'清空Neo4j数据失败: {e}')
+            return False
+
     async def close(self):
         if self.graphiti:
             with contextlib.suppress(Exception):

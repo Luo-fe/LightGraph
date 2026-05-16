@@ -128,6 +128,8 @@ async def run_tmcad_pipeline(max_per_category: int = 3) -> dict:
                 feat_dict = feat.model_dump()
                 feat_dict['source_file'] = part['filename']
                 feat_dict['source_category'] = part.get('category_cn', '')
+                feat_dict['estimated_diameter'] = part.get('estimated_diameter')
+                feat_dict['estimated_length'] = part.get('estimated_length')
                 all_features.append(feat_dict)
         except Exception as e:
             logger.warning(f'特征识别失败 {part["filename"]}: {e}')
@@ -292,6 +294,177 @@ async def run_tmcad_end_to_end(max_per_category: int = 2) -> list[dict]:
         await kg.close()
 
     return all_results
+
+
+async def run_tmcad_knowledge_build(max_per_category: int = 5) -> dict:
+    logger.info('=' * 60)
+    logger.info('TMCAD数据集知识库构建（向量库+知识图谱）')
+    logger.info('=' * 60)
+
+    parser = STEPParser()
+    parts = parser.scan_dataset(max_per_category=max_per_category)
+    logger.info(f'扫描 {len(parts)} 个零件用于知识库构建')
+
+    glm_client = GLMClient()
+    extractor = FeatureExtractor(glm_client)
+
+    tmcad_cases = []
+    for part in parts:
+        summary = part.get('summary', '')
+        if not summary:
+            continue
+        try:
+            features = await extractor.extract_from_text(summary)
+            for feat in features:
+                feat_dict = feat.model_dump()
+                category = part.get('category', '')
+                cat_info = _get_category_info(category)
+                diameter = feat_dict.get('diameter') or part.get('estimated_diameter')
+                length = feat_dict.get('length') or part.get('estimated_length')
+
+                case = {
+                    'id': f"tmcad_{category}_{part['filename'].replace('.stp', '').replace('.step', '')}_{feat_dict['feature_type']}",
+                    'feature_type': feat_dict['feature_type'],
+                    'length': length,
+                    'width': feat_dict.get('width'),
+                    'diameter': diameter,
+                    'depth': feat_dict.get('depth'),
+                    'precision': feat_dict.get('precision', 'IT7'),
+                    'roughness': feat_dict.get('roughness', 3.2),
+                    'machining_method': _infer_machining_method(feat_dict['feature_type'], category),
+                    'process_route': _infer_process_route(feat_dict['feature_type'], category, diameter, length),
+                    'spindle_speed': _infer_spindle_speed(feat_dict['feature_type'], category),
+                    'feed_rate': _infer_feed_rate(feat_dict['feature_type'], category),
+                    'tool_diameter': _infer_tool_diameter(feat_dict['feature_type'], diameter),
+                    'cutting_depth': _infer_cutting_depth(feat_dict['feature_type']),
+                    'cutting_width': _infer_cutting_width(feat_dict['feature_type']),
+                    'material': cat_info.get('material', '45号钢'),
+                    'machine_tool': cat_info.get('machine_tool', '数控车床'),
+                }
+                tmcad_cases.append(case)
+        except Exception as e:
+            logger.warning(f'特征识别失败 {part['filename']}: {e}')
+
+    await glm_client.close()
+    logger.info(f'生成 {len(tmcad_cases)} 条TMCAD工艺案例')
+
+    embedder = GLMEmbedder()
+    vector_store = VectorStore(embedder=embedder)
+    docs = [
+        {'content': json.dumps(c, ensure_ascii=False), 'id': c['id']}
+        for c in tmcad_cases
+    ]
+    await vector_store.add_documents(docs, text_key='content')
+    vector_store.save()
+    logger.info(f'TMCAD向量库写入完成: {len(docs)} 条')
+    await embedder.close()
+
+    kg = CADKnowledgeGraph()
+    kg_connected = await kg.initialize()
+    kg_count = 0
+    if kg_connected:
+        kg_count = await kg.add_process_cases_bulk(tmcad_cases) or 0
+        await kg.close()
+
+    cases_path = PROCESSED_DATA_DIR / 'tmcad_cases.json'
+    cases_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(cases_path, 'w', encoding='utf-8') as f:
+        json.dump(tmcad_cases, f, ensure_ascii=False, indent=2)
+
+    return {
+        'parts_scanned': len(parts),
+        'cases_generated': len(tmcad_cases),
+        'vector_count': len(docs),
+        'kg_count': kg_count,
+    }
+
+
+def _get_category_info(category: str) -> dict:
+    from src.feature.step_parser import CATEGORY_FEATURE_MAP
+
+    return CATEGORY_FEATURE_MAP.get(category, {
+        'material': '45号钢',
+        'machine_tool': '数控车床',
+        'process_type': 'turning',
+    })
+
+
+def _infer_machining_method(feature_type: str, category: str) -> str:
+    from src.config.settings import MACHINING_METHODS
+
+    methods = MACHINING_METHODS.get(feature_type, [])
+    if methods:
+        return methods[0]
+    if category in ('bolt', 'nut', 'shaft', 'flange'):
+        return '粗车-精车'
+    if category == 'gear':
+        return '粗车-精车-滚齿'
+    return '粗铣-精铣'
+
+
+def _infer_process_route(feature_type: str, category: str, diameter=None, length=None) -> str:
+    d_str = f'直径{diameter}mm' if diameter else '相应直径'
+    l_str = f'长度{length}mm' if length else ''
+
+    routes = {
+        'outer_circle': f'选择棒料→车床装夹→粗车外圆至{d_str}留0.5mm余量→精车外圆至{d_str}',
+        'conical_surface': f'选择棒料→车床装夹→粗车圆锥面留0.5mm余量→精车圆锥面至IT7精度',
+        'cylindrical_surface': f'选择棒料→车床装夹→粗车圆柱面至{d_str}留0.5mm余量→精车至{d_str}',
+        'circular_curve': f'选择棒料→车床装夹→粗车圆弧面→精车圆弧面至IT7精度',
+        'thread': f'选择棒料→车床装夹→车螺纹底径→精车螺纹至标准',
+        'gear_tooth': f'选择棒料→车床装夹→粗车外圆→精车外圆→滚齿加工齿形→剃齿精加工',
+        'through_hole': f'选择工件→CNC定位→钻头钻孔→扩孔钻扩孔→铰刀铰孔至{d_str}',
+        'blind_hole': f'选择工件→CNC定位→钻头钻孔→镗刀镗孔至{d_str}',
+        'rectangular_pocket': f'选择工件→CNC定位→铣刀粗铣腔体→精铣至尺寸',
+        'square_slot': f'选择工件→CNC定位→铣刀粗铣槽→精铣至尺寸',
+    }
+    return routes.get(feature_type, f'选择工件→装夹→加工{feature_type}特征至要求尺寸')
+
+
+def _infer_spindle_speed(feature_type: str, category: str) -> float:
+    if feature_type in ('thread',):
+        return 800
+    if feature_type in ('gear_tooth',):
+        return 600
+    if category in ('bolt', 'nut', 'shaft', 'flange'):
+        return 1500
+    if feature_type in ('through_hole', 'blind_hole'):
+        return 2000
+    return 3000
+
+
+def _infer_feed_rate(feature_type: str, category: str) -> float:
+    if feature_type in ('thread',):
+        return 40
+    if feature_type in ('gear_tooth',):
+        return 60
+    if category in ('bolt', 'nut', 'shaft', 'flange'):
+        return 150
+    if feature_type in ('through_hole', 'blind_hole'):
+        return 120
+    return 600
+
+
+def _infer_tool_diameter(feature_type: str, diameter=None) -> float | None:
+    if feature_type in ('through_hole', 'blind_hole'):
+        return diameter if diameter else 10
+    if feature_type in ('rectangular_pocket', 'square_slot'):
+        return 8
+    return None
+
+
+def _infer_cutting_depth(feature_type: str) -> float:
+    if feature_type in ('thread',):
+        return 0.5
+    if feature_type in ('gear_tooth',):
+        return 1.5
+    return 2.0
+
+
+def _infer_cutting_width(feature_type: str) -> float | None:
+    if feature_type in ('rectangular_pocket', 'square_slot'):
+        return 4.0
+    return None
 
 
 async def run_validation(test_cases: list[dict]) -> dict:
@@ -565,12 +738,202 @@ def _generate_sample_data() -> list[dict]:
             'depth': None,
             'precision': 'IT7',
             'roughness': 3.2,
-            'machining_method': '车-精车',
+            'machining_method': '车螺纹',
             'process_route': '选择钢棒料→数控车床装夹→车螺纹底径→精车螺纹至M10标准',
             'spindle_speed': 800,
             'feed_rate': 40,
             'tool_diameter': None,
             'cutting_depth': 0.5,
+            'cutting_width': None,
+            'material': '45号钢',
+            'machine_tool': '数控车床',
+        },
+        {
+            'id': 'sample_bolt_001',
+            'feature_type': '螺纹',
+            'length': 30,
+            'width': None,
+            'diameter': 12,
+            'depth': None,
+            'precision': 'IT7',
+            'roughness': 3.2,
+            'machining_method': '车螺纹',
+            'process_route': '选择45号钢棒料→数控车床装夹→粗车外圆至直径12mm→车螺纹底径→精车M12螺纹',
+            'spindle_speed': 800,
+            'feed_rate': 40,
+            'tool_diameter': None,
+            'cutting_depth': 0.5,
+            'cutting_width': None,
+            'material': '45号钢',
+            'machine_tool': '数控车床',
+        },
+        {
+            'id': 'sample_bolt_002',
+            'feature_type': '外圆',
+            'length': 60,
+            'width': None,
+            'diameter': 12,
+            'depth': None,
+            'precision': 'IT7',
+            'roughness': 1.6,
+            'machining_method': '粗车-精车',
+            'process_route': '选择45号钢棒料→数控车床装夹→粗车外圆至直径12.5mm→精车至直径12mm',
+            'spindle_speed': 1800,
+            'feed_rate': 120,
+            'tool_diameter': None,
+            'cutting_depth': 1.5,
+            'cutting_width': None,
+            'material': '45号钢',
+            'machine_tool': '数控车床',
+        },
+        {
+            'id': 'sample_bolt_003',
+            'feature_type': '圆柱面',
+            'length': 25,
+            'width': None,
+            'diameter': 20,
+            'depth': None,
+            'precision': 'IT8',
+            'roughness': 3.2,
+            'machining_method': '粗车-精车',
+            'process_route': '选择45号钢棒料→数控车床装夹→粗车圆柱面至直径20.5mm→精车至直径20mm',
+            'spindle_speed': 1500,
+            'feed_rate': 100,
+            'tool_diameter': None,
+            'cutting_depth': 2,
+            'cutting_width': None,
+            'material': '45号钢',
+            'machine_tool': '数控车床',
+        },
+        {
+            'id': 'sample_gear_001',
+            'feature_type': '齿形',
+            'length': 30,
+            'width': None,
+            'diameter': 80,
+            'depth': None,
+            'precision': 'IT6',
+            'roughness': 0.8,
+            'machining_method': '滚齿-剃齿',
+            'process_route': '选择40Cr钢锻坯→粗车外圆→精车外圆→滚齿加工齿形→剃齿精加工',
+            'spindle_speed': 600,
+            'feed_rate': 60,
+            'tool_diameter': None,
+            'cutting_depth': 1.5,
+            'cutting_width': None,
+            'material': '40Cr钢',
+            'machine_tool': '数控车床+滚齿机',
+        },
+        {
+            'id': 'sample_gear_002',
+            'feature_type': '外圆',
+            'length': 30,
+            'width': None,
+            'diameter': 80,
+            'depth': None,
+            'precision': 'IT7',
+            'roughness': 1.6,
+            'machining_method': '粗车-精车',
+            'process_route': '选择40Cr钢锻坯→数控车床装夹→粗车外圆至直径80.5mm→精车至直径80mm',
+            'spindle_speed': 1200,
+            'feed_rate': 80,
+            'tool_diameter': None,
+            'cutting_depth': 2,
+            'cutting_width': None,
+            'material': '40Cr钢',
+            'machine_tool': '数控车床',
+        },
+        {
+            'id': 'sample_gear_003',
+            'feature_type': '通孔',
+            'length': None,
+            'width': None,
+            'diameter': 25,
+            'depth': 30,
+            'precision': 'IT7',
+            'roughness': 1.6,
+            'machining_method': '钻-扩-铰',
+            'process_route': '选择40Cr钢工件→CNC定位→直径24.8mm钻头钻孔→直径24.95mm扩孔→直径25mm铰刀铰孔',
+            'spindle_speed': 1500,
+            'feed_rate': 100,
+            'tool_diameter': 25,
+            'cutting_depth': 30,
+            'cutting_width': None,
+            'material': '40Cr钢',
+            'machine_tool': 'CNC加工中心',
+        },
+        {
+            'id': 'sample_nut_001',
+            'feature_type': '螺纹',
+            'length': 15,
+            'width': None,
+            'diameter': 16,
+            'depth': None,
+            'precision': 'IT7',
+            'roughness': 3.2,
+            'machining_method': '车螺纹',
+            'process_route': '选择45号钢棒料→数控车床装夹→车外圆→钻孔→车M16内螺纹',
+            'spindle_speed': 800,
+            'feed_rate': 40,
+            'tool_diameter': None,
+            'cutting_depth': 0.5,
+            'cutting_width': None,
+            'material': '45号钢',
+            'machine_tool': '数控车床',
+        },
+        {
+            'id': 'sample_nut_002',
+            'feature_type': '通孔',
+            'length': None,
+            'width': None,
+            'diameter': 14,
+            'depth': 15,
+            'precision': 'IT8',
+            'roughness': 3.2,
+            'machining_method': '钻-扩-铰',
+            'process_route': '选择45号钢工件→CNC定位→直径13.8mm钻头钻孔→直径13.95mm扩孔→直径14mm铰刀铰孔',
+            'spindle_speed': 2000,
+            'feed_rate': 120,
+            'tool_diameter': 14,
+            'cutting_depth': 15,
+            'cutting_width': None,
+            'material': '45号钢',
+            'machine_tool': 'CNC加工中心',
+        },
+        {
+            'id': 'sample_nut_003',
+            'feature_type': '外圆',
+            'length': 15,
+            'width': None,
+            'diameter': 24,
+            'depth': None,
+            'precision': 'IT8',
+            'roughness': 3.2,
+            'machining_method': '粗车-精车',
+            'process_route': '选择45号钢棒料→数控车床装夹→粗车外圆至直径24.5mm→精车至直径24mm',
+            'spindle_speed': 1500,
+            'feed_rate': 100,
+            'tool_diameter': None,
+            'cutting_depth': 1.5,
+            'cutting_width': None,
+            'material': '45号钢',
+            'machine_tool': '数控车床',
+        },
+        {
+            'id': 'sample_nut_004',
+            'feature_type': '圆柱面',
+            'length': 10,
+            'width': None,
+            'diameter': 52,
+            'depth': None,
+            'precision': 'IT7',
+            'roughness': 1.6,
+            'machining_method': '粗车-精车',
+            'process_route': '选择45号钢棒料→数控车床装夹→粗车圆柱面至直径52.5mm→精车至直径52mm',
+            'spindle_speed': 1200,
+            'feed_rate': 80,
+            'tool_diameter': None,
+            'cutting_depth': 2,
             'cutting_width': None,
             'material': '45号钢',
             'machine_tool': '数控车床',
@@ -599,11 +962,88 @@ def _get_validation_test_cases() -> list[dict]:
             'expected_method': '粗铣-半精铣',
             'expected_tool_diameter': 12,
         },
+        {
+            'feature_type': '外圆',
+            'diameter': 50,
+            'length': 80,
+            'precision': 'IT6',
+            'roughness': 0.8,
+            'expected_method': '粗车-精车',
+        },
+        {
+            'feature_type': '螺纹',
+            'diameter': 12,
+            'length': 30,
+            'precision': 'IT7',
+            'roughness': 3.2,
+            'expected_method': '车螺纹',
+        },
+        {
+            'feature_type': '齿形',
+            'diameter': 80,
+            'length': 30,
+            'precision': 'IT6',
+            'roughness': 0.8,
+            'expected_method': '滚齿',
+        },
+        {
+            'feature_type': '圆锥面',
+            'diameter': 40,
+            'length': 30,
+            'precision': 'IT7',
+            'roughness': 1.6,
+            'expected_method': '粗车-精车',
+        },
+        {
+            'feature_type': '盲孔',
+            'diameter': 8,
+            'depth': 20,
+            'precision': 'IT8',
+            'roughness': 3.2,
+            'expected_method': '钻-镗',
+        },
+        {
+            'feature_type': '圆柱面',
+            'diameter': 30,
+            'length': 100,
+            'precision': 'IT7',
+            'roughness': 1.6,
+            'expected_method': '粗车-精车',
+        },
+        {
+            'feature_type': '方形槽',
+            'length': 60,
+            'width': 30,
+            'depth': 15,
+            'precision': 'IT7',
+            'roughness': 3.2,
+            'expected_method': '粗铣-精铣',
+        },
+        {
+            'feature_type': '圆曲线',
+            'diameter': 25,
+            'length': 50,
+            'precision': 'IT7',
+            'roughness': 1.6,
+            'expected_method': '粗车-精车',
+        },
     ]
 
 
 async def main():
     logger.info('CAD工艺知识图谱系统启动')
+
+    logger.info('\n步骤0: 清空Neo4j旧数据')
+    kg = CADKnowledgeGraph()
+    try:
+        cleared = await kg.clear_all_data()
+        if cleared:
+            logger.info('Neo4j旧数据已清空')
+        else:
+            logger.info('Neo4j清空跳过（可能未连接或graphiti不可用）')
+    except Exception as e:
+        logger.warning(f'清空Neo4j失败: {e}')
+    await kg.close()
 
     logger.info('\n步骤1: 测试GLM API连接')
     try:
@@ -621,7 +1061,14 @@ async def main():
     data_result = await run_data_pipeline()
     logger.info(f'数据处理结果: {data_result}')
 
-    logger.info('\n步骤3: 工作3 - 典型零件原型验证')
+    logger.info('\n步骤3: 工作1补充 - TMCAD数据集知识库构建')
+    try:
+        tmcad_kg_result = await run_tmcad_knowledge_build(max_per_category=3)
+        logger.info(f'TMCAD知识库构建结果: {tmcad_kg_result}')
+    except Exception as e:
+        logger.error(f'TMCAD知识库构建失败: {e}')
+
+    logger.info('\n步骤4: 工作3 - 典型零件原型验证')
     test_cases = _get_validation_test_cases()
     validation_report = await run_validation(test_cases)
     logger.info(
@@ -629,7 +1076,7 @@ async def main():
         f'MDMT={validation_report["mdmt"]}'
     )
 
-    logger.info('\n步骤4: 工作4 - 示例数据端到端流程')
+    logger.info('\n步骤5: 工作4 - 示例数据端到端流程')
     test_input = {
         'feature_type': '四边形腔',
         'length': 100,
@@ -649,9 +1096,9 @@ async def main():
     except Exception as e:
         logger.error(f'端到端流程失败: {e}')
 
-    logger.info('\n步骤5: 工作4 - TMCAD数据集端到端流程（每类1个零件）')
+    logger.info('\n步骤6: 工作4 - TMCAD数据集端到端流程（每类2个零件）')
     try:
-        tmcad_results = await run_tmcad_end_to_end(max_per_category=1)
+        tmcad_results = await run_tmcad_end_to_end(max_per_category=2)
         logger.info(f'TMCAD流程完成，共 {len(tmcad_results)} 条推荐结果')
     except Exception as e:
         logger.error(f'TMCAD流程失败: {e}')
