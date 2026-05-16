@@ -1,3 +1,4 @@
+import contextlib
 import json
 import logging
 
@@ -144,6 +145,9 @@ class ProcessRecommender:
 
     @staticmethod
     def _summarize_doc(doc: dict) -> str:
+        if 'content' in doc and isinstance(doc['content'], str):
+            with contextlib.suppress(json.JSONDecodeError, TypeError):
+                doc = json.loads(doc['content'])
         feature = doc.get('feature', {})
         if isinstance(feature, dict):
             ft = feature.get('feature_type', '')
