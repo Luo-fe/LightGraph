@@ -23,6 +23,22 @@ def _clean_numeric(value) -> float | None:
     return None
 
 
+def _clean_precision(value) -> str | None:
+    if value is None:
+        return None
+    if isinstance(value, str):
+        m = re.search(r'IT\s*(\d+)', value, re.IGNORECASE)
+        if m:
+            return f'IT{m.group(1)}'
+        m = re.search(r'(\d+)', value)
+        if m:
+            return f'IT{m.group(1)}'
+        return value
+    if isinstance(value, (int, float)):
+        return f'IT{int(value)}'
+    return None
+
+
 class FeatureExtractor:
     def __init__(self, glm_client: GLMClient | None = None):
         self.glm_client = glm_client or GLMClient()
@@ -66,7 +82,7 @@ class FeatureExtractor:
                     width=_clean_numeric(item.get('width', item.get('宽度'))),
                     diameter=_clean_numeric(item.get('diameter', item.get('直径'))),
                     depth=_clean_numeric(item.get('depth', item.get('深度'))),
-                    precision=item.get('precision', item.get('精度')),
+                    precision=_clean_precision(item.get('precision', item.get('精度'))),
                     roughness=_clean_numeric(item.get('roughness', item.get('粗糙度'))),
                 )
                 features.append(feature)
@@ -95,7 +111,7 @@ class FeatureExtractor:
                 width=_clean_numeric(data.get('width', data.get('宽度'))),
                 diameter=_clean_numeric(data.get('diameter', data.get('直径'))),
                 depth=_clean_numeric(data.get('depth', data.get('深度'))),
-                precision=data.get('precision', data.get('精度')),
+                precision=_clean_precision(data.get('precision', data.get('精度'))),
                 roughness=_clean_numeric(data.get('roughness', data.get('粗糙度'))),
             )
         except Exception as e:
