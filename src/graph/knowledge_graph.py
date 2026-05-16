@@ -139,7 +139,63 @@ class CADKnowledgeGraph:
             )
             return result
         except Exception as e:
-            logger.warning(f'添加知识片段失败: {e}')
+            logger.warning(f'Graphiti添加知识片段失败，降级为直接Neo4j写入: {e}')
+            return await self._add_episode_direct(name, content, reference_time)
+
+    async def _add_episode_direct(
+        self,
+        name: str,
+        content: str,
+        reference_time: datetime,
+    ):
+        try:
+            from neo4j import GraphDatabase
+
+            driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
+            with driver.session() as session:
+                session.run(
+                    'CREATE (e:Episode {name: $name, content: $content, '
+                    'reference_time: $ref_time, group_id: $group_id, '
+                    'created_at: datetime()})',
+                    name=name,
+                    content=content,
+                    ref_time=reference_time.isoformat(),
+                    group_id=self.GROUP_ID,
+                )
+
+                try:
+                    data = json.loads(content)
+                    feature_type = data.get('特征类型', 'unknown')
+                    method = data.get('加工方法', '')
+                    route = data.get('工艺路线', '')
+                    material = data.get('材料', '')
+                    machine = data.get('机床', '')
+
+                    session.run(
+                        'MERGE (ft:FeatureType {name: $ft}) '
+                        'MERGE (m:Method {name: $method}) '
+                        'MERGE (mt:Material {name: $material}) '
+                        'MERGE (mc:MachineTool {name: $machine}) '
+                        'MERGE (ft)-[:USES_METHOD]->(m) '
+                        'MERGE (m)-[:SUITABLE_FOR]->(ft) '
+                        'MERGE (m)-[:USES_MATERIAL]->(mt) '
+                        'MERGE (m)-[:USES_MACHINE]->(mc) '
+                        'MERGE (e:Episode {name: $name}) '
+                        'MERGE (e)-[:DESCRIBES]->(ft)',
+                        ft=feature_type,
+                        method=method,
+                        material=material,
+                        machine=machine,
+                        name=name,
+                    )
+                except (json.JSONDecodeError, Exception):
+                    pass
+
+            driver.close()
+            logger.info(f'已通过Neo4j直接写入知识片段: {name}')
+            return type('Result', (), {'nodes': [], 'edges': []})()
+        except Exception as e2:
+            logger.warning(f'Neo4j直接写入也失败: {e2}')
             return None
 
     async def add_process_case(self, case: dict):
@@ -235,15 +291,45 @@ class CADKnowledgeGraph:
         if not self.is_connected:
             return []
 
+        facts = []
         try:
             edges = await self.graphiti.search(
                 query=query, num_results=limit, group_ids=[self.GROUP_ID]
             )
             facts = [edge.fact for edge in edges]
             logger.info(f'知识图谱事实检索: 查询"{query}", 返回{len(facts)}条事实')
-            return facts
         except Exception as e:
-            logger.warning(f'知识图谱事实检索失败: {e}')
+            logger.warning(f'知识图谱事实检索失败，尝试直接Neo4j检索: {e}')
+
+        if not facts:
+            facts = await self._search_facts_direct(query, limit)
+
+        return facts
+
+    async def _search_facts_direct(self, query: str, limit: int = 5) -> list[str]:
+        try:
+            from neo4j import GraphDatabase
+
+            driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
+            with driver.session() as session:
+                result = session.run(
+                    'MATCH (e:Episode) WHERE e.group_id = $gid '
+                    'RETURN e.name AS name, e.content AS content '
+                    'LIMIT $limit',
+                    gid=self.GROUP_ID,
+                    limit=limit,
+                )
+                facts = []
+                for record in result:
+                    content = record.get('content', '')
+                    name = record.get('name', '')
+                    if content:
+                        facts.append(f'{name}: {content[:200]}')
+            driver.close()
+            logger.info(f'Neo4j直接检索: 查询"{query}", 返回{len(facts)}条事实')
+            return facts[:limit]
+        except Exception as e:
+            logger.warning(f'Neo4j直接检索也失败: {e}')
             return []
 
     async def clear_all_data(self) -> bool:
