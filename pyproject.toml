@@ -1,0 +1,38 @@
+[project]
+name = "cad-knowledge-graph"
+description = "CAD工艺知识图谱与工艺路线推荐系统"
+version = "0.1.0"
+requires-python = ">=3.10,<4"
+dependencies = [
+    "graphiti-core>=0.29.0",
+    "pydantic>=2.11.5",
+    "neo4j>=5.26.0",
+    "openai>=1.91.0",
+    "python-dotenv>=1.0.1",
+    "numpy>=1.0.0",
+    "tenacity>=9.0.0",
+    "faiss-cpu>=1.7.0",
+    "sentence-transformers>=3.2.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.3",
+    "pytest-asyncio>=0.24.0",
+    "ruff>=0.7.1",
+]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "UP", "B", "SIM", "I"]
+ignore = ["E501"]
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "space"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+asyncio_mode = "auto"
