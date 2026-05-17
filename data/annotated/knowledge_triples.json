@@ -1,0 +1,826 @@
+[
+  {
+    "source_entity": "四边形腔",
+    "relation": "使用",
+    "target_entity": "粗铣-半精铣",
+    "attributes": {
+      "长度": 120.0,
+      "宽度": 100.0,
+      "深度": 50.0,
+      "精度": "IT8",
+      "粗糙度": 6.3
+    }
+  },
+  {
+    "source_entity": "粗铣-半精铣",
+    "relation": "需要",
+    "target_entity": "φ12.0铣刀",
+    "attributes": {
+      "刀具直径": 12.0
+    }
+  },
+  {
+    "source_entity": "粗铣-半精铣",
+    "relation": "适用于",
+    "target_entity": "铝合金7075",
+    "attributes": {}
+  },
+  {
+    "source_entity": "粗铣-半精铣",
+    "relation": "在机床上执行",
+    "target_entity": "CNC加工中心",
+    "attributes": {}
+  },
+  {
+    "source_entity": "粗铣-半精铣",
+    "relation": "具有参数",
+    "target_entity": "粗铣-半精铣工艺参数",
+    "attributes": {
+      "主轴转速": 3000.0,
+      "进给速度": 800.0,
+      "切削深度": 3.0,
+      "切削宽度": 6.0
+    }
+  },
+  {
+    "source_entity": "通孔",
+    "relation": "使用",
+    "target_entity": "钻-扩-铰",
+    "attributes": {
+      "直径": 10.0,
+      "深度": 25.0,
+      "精度": "IT7",
+      "粗糙度": 1.6
+    }
+  },
+  {
+    "source_entity": "钻-扩-铰",
+    "relation": "需要",
+    "target_entity": "φ10.0钻头",
+    "attributes": {
+      "刀具直径": 10.0
+    }
+  },
+  {
+    "source_entity": "钻-扩-铰",
+    "relation": "适用于",
+    "target_entity": "铝合金6061",
+    "attributes": {}
+  },
+  {
+    "source_entity": "钻-扩-铰",
+    "relation": "在机床上执行",
+    "target_entity": "CNC加工中心",
+    "attributes": {}
+  },
+  {
+    "source_entity": "钻-扩-铰",
+    "relation": "具有参数",
+    "target_entity": "钻-扩-铰工艺参数",
+    "attributes": {
+      "主轴转速": 2000.0,
+      "进给速度": 150.0,
+      "切削深度": 25.0
+    }
+  },
+  {
+    "source_entity": "外圆",
+    "relation": "使用",
+    "target_entity": "粗车-精车",
+    "attributes": {
+      "长度": 80.0,
+      "直径": 50.0,
+      "精度": "IT6",
+      "粗糙度": 0.8
+    }
+  },
+  {
+    "source_entity": "粗车-精车",
+    "relation": "需要",
+    "target_entity": "φ50.0钻头",
+    "attributes": {
+      "刀具直径": 50.0
+    }
+  },
+  {
+    "source_entity": "粗车-精车",
+    "relation": "适用于",
+    "target_entity": "45号钢",
+    "attributes": {}
+  },
+  {
+    "source_entity": "粗车-精车",
+    "relation": "在机床上执行",
+    "target_entity": "数控车床",
+    "attributes": {}
+  },
+  {
+    "source_entity": "粗车-精车",
+    "relation": "具有参数",
+    "target_entity": "粗车-精车工艺参数",
+    "attributes": {
+      "主轴转速": 1500.0,
+      "进给速度": 200.0,
+      "切削深度": 2.0
+    }
+  },
+  {
+    "source_entity": "方形槽",
+    "relation": "使用",
+    "target_entity": "粗铣-精铣",
+    "attributes": {
+      "长度": 60.0,
+      "宽度": 30.0,
+      "深度": 15.0,
+      "精度": "IT7",
+      "粗糙度": 3.2
+    }
+  },
+  {
+    "source_entity": "粗铣-精铣",
+    "relation": "需要",
+    "target_entity": "φ8.0铣刀",
+    "attributes": {
+      "刀具直径": 8.0
+    }
+  },
+  {
+    "source_entity": "粗铣-精铣",
+    "relation": "适用于",
+    "target_entity": "铝合金2024",
+    "attributes": {}
+  },
+  {
+    "source_entity": "粗铣-精铣",
+    "relation": "在机床上执行",
+    "target_entity": "CNC加工中心",
+    "attributes": {}
+  },
+  {
+    "source_entity": "粗铣-精铣",
+    "relation": "具有参数",
+    "target_entity": "粗铣-精铣工艺参数",
+    "attributes": {
+      "主轴转速": 4000.0,
+      "进给速度": 600.0,
+      "切削深度": 2.0,
+      "切削宽度": 4.0
+    }
+  },
+  {
+    "source_entity": "盲孔",
+    "relation": "使用",
+    "target_entity": "钻-镗",
+    "attributes": {
+      "直径": 8.0,
+      "深度": 20.0,
+      "精度": "IT8",
+      "粗糙度": 3.2
+    }
+  },
+  {
+    "source_entity": "钻-镗",
+    "relation": "需要",
+    "target_entity": "φ8.0钻头",
+    "attributes": {
+      "刀具直径": 8.0
+    }
+  },
+  {
+    "source_entity": "钻-镗",
+    "relation": "适用于",
+    "target_entity": "40Cr钢",
+    "attributes": {}
+  },
+  {
+    "source_entity": "钻-镗",
+    "relation": "在机床上执行",
+    "target_entity": "CNC加工中心",
+    "attributes": {}
+  },
+  {
+    "source_entity": "钻-镗",
+    "relation": "具有参数",
+    "target_entity": "钻-镗工艺参数",
+    "attributes": {
+      "主轴转速": 2500.0,
+      "进给速度": 120.0,
+      "切削深度": 20.0
+    }
+  },
+  {
+    "source_entity": "圆锥面",
+    "relation": "使用",
+    "target_entity": "粗车-精车",
+    "attributes": {
+      "长度": 30.0,
+      "直径": 40.0,
+      "精度": "IT7",
+      "粗糙度": 1.6
+    }
+  },
+  {
+    "source_entity": "粗车-精车",
+    "relation": "需要",
+    "target_entity": "φ40.0钻头",
+    "attributes": {
+      "刀具直径": 40.0
+    }
+  },
+  {
+    "source_entity": "粗车-精车",
+    "relation": "适用于",
+    "target_entity": "45号钢",
+    "attributes": {}
+  },
+  {
+    "source_entity": "粗车-精车",
+    "relation": "在机床上执行",
+    "target_entity": "数控车床",
+    "attributes": {}
+  },
+  {
+    "source_entity": "粗车-精车",
+    "relation": "具有参数",
+    "target_entity": "粗车-精车工艺参数",
+    "attributes": {
+      "主轴转速": 1200.0,
+      "进给速度": 80.0,
+      "切削深度": 1.5
+    }
+  },
+  {
+    "source_entity": "圆柱面",
+    "relation": "使用",
+    "target_entity": "粗车-精车",
+    "attributes": {
+      "长度": 100.0,
+      "直径": 30.0,
+      "精度": "IT7",
+      "粗糙度": 1.6
+    }
+  },
+  {
+    "source_entity": "粗车-精车",
+    "relation": "需要",
+    "target_entity": "φ30.0钻头",
+    "attributes": {
+      "刀具直径": 30.0
+    }
+  },
+  {
+    "source_entity": "粗车-精车",
+    "relation": "适用于",
+    "target_entity": "40Cr钢",
+    "attributes": {}
+  },
+  {
+    "source_entity": "粗车-精车",
+    "relation": "在机床上执行",
+    "target_entity": "数控车床",
+    "attributes": {}
+  },
+  {
+    "source_entity": "粗车-精车",
+    "relation": "具有参数",
+    "target_entity": "粗车-精车工艺参数",
+    "attributes": {
+      "主轴转速": 1800.0,
+      "进给速度": 100.0,
+      "切削深度": 2.0
+    }
+  },
+  {
+    "source_entity": "圆曲线",
+    "relation": "使用",
+    "target_entity": "粗车-精车",
+    "attributes": {
+      "长度": 50.0,
+      "直径": 25.0,
+      "精度": "IT7",
+      "粗糙度": 1.6
+    }
+  },
+  {
+    "source_entity": "粗车-精车",
+    "relation": "需要",
+    "target_entity": "φ25.0钻头",
+    "attributes": {
+      "刀具直径": 25.0
+    }
+  },
+  {
+    "source_entity": "粗车-精车",
+    "relation": "适用于",
+    "target_entity": "铝合金6061",
+    "attributes": {}
+  },
+  {
+    "source_entity": "粗车-精车",
+    "relation": "在机床上执行",
+    "target_entity": "数控车床",
+    "attributes": {}
+  },
+  {
+    "source_entity": "粗车-精车",
+    "relation": "具有参数",
+    "target_entity": "粗车-精车工艺参数",
+    "attributes": {
+      "主轴转速": 2000.0,
+      "进给速度": 60.0,
+      "切削深度": 1.0
+    }
+  },
+  {
+    "source_entity": "圆锥面",
+    "relation": "使用",
+    "target_entity": "粗车-半精车-精车",
+    "attributes": {
+      "长度": 50.0,
+      "直径": 60.0,
+      "精度": "IT6",
+      "粗糙度": 0.8
+    }
+  },
+  {
+    "source_entity": "粗车-半精车-精车",
+    "relation": "需要",
+    "target_entity": "φ60.0钻头",
+    "attributes": {
+      "刀具直径": 60.0
+    }
+  },
+  {
+    "source_entity": "粗车-半精车-精车",
+    "relation": "适用于",
+    "target_entity": "合金钢",
+    "attributes": {}
+  },
+  {
+    "source_entity": "粗车-半精车-精车",
+    "relation": "在机床上执行",
+    "target_entity": "数控车床",
+    "attributes": {}
+  },
+  {
+    "source_entity": "粗车-半精车-精车",
+    "relation": "具有参数",
+    "target_entity": "粗车-半精车-精车工艺参数",
+    "attributes": {
+      "主轴转速": 1000.0,
+      "进给速度": 50.0,
+      "切削深度": 1.0
+    }
+  },
+  {
+    "source_entity": "螺纹",
+    "relation": "使用",
+    "target_entity": "车螺纹",
+    "attributes": {
+      "长度": 20.0,
+      "直径": 10.0,
+      "精度": "IT7",
+      "粗糙度": 3.2
+    }
+  },
+  {
+    "source_entity": "车螺纹",
+    "relation": "需要",
+    "target_entity": "φ10.0钻头",
+    "attributes": {
+      "刀具直径": 10.0
+    }
+  },
+  {
+    "source_entity": "车螺纹",
+    "relation": "适用于",
+    "target_entity": "45号钢",
+    "attributes": {}
+  },
+  {
+    "source_entity": "车螺纹",
+    "relation": "在机床上执行",
+    "target_entity": "数控车床",
+    "attributes": {}
+  },
+  {
+    "source_entity": "车螺纹",
+    "relation": "具有参数",
+    "target_entity": "车螺纹工艺参数",
+    "attributes": {
+      "主轴转速": 800.0,
+      "进给速度": 40.0,
+      "切削深度": 0.5
+    }
+  },
+  {
+    "source_entity": "螺纹",
+    "relation": "使用",
+    "target_entity": "车螺纹",
+    "attributes": {
+      "长度": 30.0,
+      "直径": 12.0,
+      "精度": "IT7",
+      "粗糙度": 3.2
+    }
+  },
+  {
+    "source_entity": "车螺纹",
+    "relation": "需要",
+    "target_entity": "φ12.0钻头",
+    "attributes": {
+      "刀具直径": 12.0
+    }
+  },
+  {
+    "source_entity": "车螺纹",
+    "relation": "适用于",
+    "target_entity": "45号钢",
+    "attributes": {}
+  },
+  {
+    "source_entity": "车螺纹",
+    "relation": "在机床上执行",
+    "target_entity": "数控车床",
+    "attributes": {}
+  },
+  {
+    "source_entity": "车螺纹",
+    "relation": "具有参数",
+    "target_entity": "车螺纹工艺参数",
+    "attributes": {
+      "主轴转速": 800.0,
+      "进给速度": 40.0,
+      "切削深度": 0.5
+    }
+  },
+  {
+    "source_entity": "外圆",
+    "relation": "使用",
+    "target_entity": "粗车-精车",
+    "attributes": {
+      "长度": 60.0,
+      "直径": 12.0,
+      "精度": "IT7",
+      "粗糙度": 1.6
+    }
+  },
+  {
+    "source_entity": "粗车-精车",
+    "relation": "需要",
+    "target_entity": "φ12.0钻头",
+    "attributes": {
+      "刀具直径": 12.0
+    }
+  },
+  {
+    "source_entity": "粗车-精车",
+    "relation": "适用于",
+    "target_entity": "45号钢",
+    "attributes": {}
+  },
+  {
+    "source_entity": "粗车-精车",
+    "relation": "在机床上执行",
+    "target_entity": "数控车床",
+    "attributes": {}
+  },
+  {
+    "source_entity": "粗车-精车",
+    "relation": "具有参数",
+    "target_entity": "粗车-精车工艺参数",
+    "attributes": {
+      "主轴转速": 1800.0,
+      "进给速度": 120.0,
+      "切削深度": 1.5
+    }
+  },
+  {
+    "source_entity": "圆柱面",
+    "relation": "使用",
+    "target_entity": "粗车-精车",
+    "attributes": {
+      "长度": 25.0,
+      "直径": 20.0,
+      "精度": "IT8",
+      "粗糙度": 3.2
+    }
+  },
+  {
+    "source_entity": "粗车-精车",
+    "relation": "需要",
+    "target_entity": "φ20.0钻头",
+    "attributes": {
+      "刀具直径": 20.0
+    }
+  },
+  {
+    "source_entity": "粗车-精车",
+    "relation": "适用于",
+    "target_entity": "45号钢",
+    "attributes": {}
+  },
+  {
+    "source_entity": "粗车-精车",
+    "relation": "在机床上执行",
+    "target_entity": "数控车床",
+    "attributes": {}
+  },
+  {
+    "source_entity": "粗车-精车",
+    "relation": "具有参数",
+    "target_entity": "粗车-精车工艺参数",
+    "attributes": {
+      "主轴转速": 1500.0,
+      "进给速度": 100.0,
+      "切削深度": 2.0
+    }
+  },
+  {
+    "source_entity": "齿形",
+    "relation": "使用",
+    "target_entity": "滚齿-剃齿",
+    "attributes": {
+      "长度": 30.0,
+      "直径": 80.0,
+      "精度": "IT6",
+      "粗糙度": 0.8
+    }
+  },
+  {
+    "source_entity": "滚齿-剃齿",
+    "relation": "需要",
+    "target_entity": "φ80.0铣刀",
+    "attributes": {
+      "刀具直径": 80.0
+    }
+  },
+  {
+    "source_entity": "滚齿-剃齿",
+    "relation": "适用于",
+    "target_entity": "40Cr钢",
+    "attributes": {}
+  },
+  {
+    "source_entity": "滚齿-剃齿",
+    "relation": "在机床上执行",
+    "target_entity": "数控车床+滚齿机",
+    "attributes": {}
+  },
+  {
+    "source_entity": "滚齿-剃齿",
+    "relation": "具有参数",
+    "target_entity": "滚齿-剃齿工艺参数",
+    "attributes": {
+      "主轴转速": 600.0,
+      "进给速度": 60.0,
+      "切削深度": 1.5
+    }
+  },
+  {
+    "source_entity": "外圆",
+    "relation": "使用",
+    "target_entity": "粗车-精车",
+    "attributes": {
+      "长度": 30.0,
+      "直径": 80.0,
+      "精度": "IT7",
+      "粗糙度": 1.6
+    }
+  },
+  {
+    "source_entity": "粗车-精车",
+    "relation": "需要",
+    "target_entity": "φ80.0钻头",
+    "attributes": {
+      "刀具直径": 80.0
+    }
+  },
+  {
+    "source_entity": "粗车-精车",
+    "relation": "适用于",
+    "target_entity": "40Cr钢",
+    "attributes": {}
+  },
+  {
+    "source_entity": "粗车-精车",
+    "relation": "在机床上执行",
+    "target_entity": "数控车床",
+    "attributes": {}
+  },
+  {
+    "source_entity": "粗车-精车",
+    "relation": "具有参数",
+    "target_entity": "粗车-精车工艺参数",
+    "attributes": {
+      "主轴转速": 1200.0,
+      "进给速度": 80.0,
+      "切削深度": 2.0
+    }
+  },
+  {
+    "source_entity": "通孔",
+    "relation": "使用",
+    "target_entity": "钻-扩-铰",
+    "attributes": {
+      "直径": 25.0,
+      "深度": 30.0,
+      "精度": "IT7",
+      "粗糙度": 1.6
+    }
+  },
+  {
+    "source_entity": "钻-扩-铰",
+    "relation": "需要",
+    "target_entity": "φ25.0钻头",
+    "attributes": {
+      "刀具直径": 25.0
+    }
+  },
+  {
+    "source_entity": "钻-扩-铰",
+    "relation": "适用于",
+    "target_entity": "40Cr钢",
+    "attributes": {}
+  },
+  {
+    "source_entity": "钻-扩-铰",
+    "relation": "在机床上执行",
+    "target_entity": "CNC加工中心",
+    "attributes": {}
+  },
+  {
+    "source_entity": "钻-扩-铰",
+    "relation": "具有参数",
+    "target_entity": "钻-扩-铰工艺参数",
+    "attributes": {
+      "主轴转速": 1500.0,
+      "进给速度": 100.0,
+      "切削深度": 30.0
+    }
+  },
+  {
+    "source_entity": "螺纹",
+    "relation": "使用",
+    "target_entity": "车螺纹",
+    "attributes": {
+      "长度": 15.0,
+      "直径": 16.0,
+      "精度": "IT7",
+      "粗糙度": 3.2
+    }
+  },
+  {
+    "source_entity": "车螺纹",
+    "relation": "需要",
+    "target_entity": "φ16.0钻头",
+    "attributes": {
+      "刀具直径": 16.0
+    }
+  },
+  {
+    "source_entity": "车螺纹",
+    "relation": "适用于",
+    "target_entity": "45号钢",
+    "attributes": {}
+  },
+  {
+    "source_entity": "车螺纹",
+    "relation": "在机床上执行",
+    "target_entity": "数控车床",
+    "attributes": {}
+  },
+  {
+    "source_entity": "车螺纹",
+    "relation": "具有参数",
+    "target_entity": "车螺纹工艺参数",
+    "attributes": {
+      "主轴转速": 800.0,
+      "进给速度": 40.0,
+      "切削深度": 0.5
+    }
+  },
+  {
+    "source_entity": "通孔",
+    "relation": "使用",
+    "target_entity": "钻-扩-铰",
+    "attributes": {
+      "直径": 14.0,
+      "深度": 15.0,
+      "精度": "IT8",
+      "粗糙度": 3.2
+    }
+  },
+  {
+    "source_entity": "钻-扩-铰",
+    "relation": "需要",
+    "target_entity": "φ14.0钻头",
+    "attributes": {
+      "刀具直径": 14.0
+    }
+  },
+  {
+    "source_entity": "钻-扩-铰",
+    "relation": "适用于",
+    "target_entity": "45号钢",
+    "attributes": {}
+  },
+  {
+    "source_entity": "钻-扩-铰",
+    "relation": "在机床上执行",
+    "target_entity": "CNC加工中心",
+    "attributes": {}
+  },
+  {
+    "source_entity": "钻-扩-铰",
+    "relation": "具有参数",
+    "target_entity": "钻-扩-铰工艺参数",
+    "attributes": {
+      "主轴转速": 2000.0,
+      "进给速度": 120.0,
+      "切削深度": 15.0
+    }
+  },
+  {
+    "source_entity": "外圆",
+    "relation": "使用",
+    "target_entity": "粗车-精车",
+    "attributes": {
+      "长度": 15.0,
+      "直径": 24.0,
+      "精度": "IT8",
+      "粗糙度": 3.2
+    }
+  },
+  {
+    "source_entity": "粗车-精车",
+    "relation": "需要",
+    "target_entity": "φ24.0钻头",
+    "attributes": {
+      "刀具直径": 24.0
+    }
+  },
+  {
+    "source_entity": "粗车-精车",
+    "relation": "适用于",
+    "target_entity": "45号钢",
+    "attributes": {}
+  },
+  {
+    "source_entity": "粗车-精车",
+    "relation": "在机床上执行",
+    "target_entity": "数控车床",
+    "attributes": {}
+  },
+  {
+    "source_entity": "粗车-精车",
+    "relation": "具有参数",
+    "target_entity": "粗车-精车工艺参数",
+    "attributes": {
+      "主轴转速": 1500.0,
+      "进给速度": 100.0,
+      "切削深度": 1.5
+    }
+  },
+  {
+    "source_entity": "圆柱面",
+    "relation": "使用",
+    "target_entity": "粗车-精车",
+    "attributes": {
+      "长度": 10.0,
+      "直径": 52.0,
+      "精度": "IT7",
+      "粗糙度": 1.6
+    }
+  },
+  {
+    "source_entity": "粗车-精车",
+    "relation": "需要",
+    "target_entity": "φ52.0钻头",
+    "attributes": {
+      "刀具直径": 52.0
+    }
+  },
+  {
+    "source_entity": "粗车-精车",
+    "relation": "适用于",
+    "target_entity": "45号钢",
+    "attributes": {}
+  },
+  {
+    "source_entity": "粗车-精车",
+    "relation": "在机床上执行",
+    "target_entity": "数控车床",
+    "attributes": {}
+  },
+  {
+    "source_entity": "粗车-精车",
+    "relation": "具有参数",
+    "target_entity": "粗车-精车工艺参数",
+    "attributes": {
+      "主轴转速": 1200.0,
+      "进给速度": 80.0,
+      "切削深度": 2.0
+    }
+  }
+]

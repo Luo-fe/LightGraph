@@ -8,6 +8,7 @@ from pathlib import Path
 
 from src.config.settings import (
     DATA_DIR,
+    PART_CATEGORY_MAP,
     PROCESSED_DATA_DIR,
     RAW_DATA_DIR,
     TMCAD_DATASET_PATH,
@@ -378,7 +379,7 @@ async def run_end_to_end(feature_input: dict | str) -> list[dict]:
         'refined': extract_result['refined'],
     }
     with open(feature_result_path, 'w', encoding='utf-8') as f:
-        json.dump(feature_save_data, f, ensure_ascii=False, indent=2)
+        json.dump(feature_save_data, f, ensure_ascii=False, indent=2, default=str)
     logger.info(f'特征识别中间结果已保存至 {feature_result_path}')
 
     kg = CADKnowledgeGraph()
@@ -413,7 +414,7 @@ async def run_end_to_end(feature_input: dict | str) -> list[dict]:
             json.dump(retrieval_save_data, f, ensure_ascii=False, indent=2, default=str)
         logger.info(f'检索结果中间结果已保存至 {retrieval_path}')
 
-        logger.info(f'推荐结果: {json.dumps(detailed_output, ensure_ascii=False, indent=2)[:400]}...')
+        logger.info(f'推荐结果: {json.dumps(detailed_output, ensure_ascii=False, indent=2, default=str)[:400]}...')
 
     if kg:
         await kg.close()
@@ -783,10 +784,9 @@ async def run_typical_part_validation() -> dict:
     overall_correct_tool = 0
     overall_total = 0
 
-    for part_key, part_info in TYPICAL_PART_TEST_CASES.items():
-        part_name = part_info['name']
-        test_cases = part_info['test_cases']
-        logger.info(f'\n--- 验证 {part_name} ({part_info["description"]}) ---')
+    for part_key, test_cases in TYPICAL_PART_TEST_CASES.items():
+        part_name = PART_CATEGORY_MAP.get(part_key, part_key)
+        logger.info(f'\n--- 验证 {part_name} ({len(test_cases)}个特征) ---')
 
         part_results = []
         correct_method = 0
@@ -862,7 +862,6 @@ async def run_typical_part_validation() -> dict:
 
         all_results[part_key] = {
             'name': part_name,
-            'description': part_info['description'],
             'total_cases': total,
             'mdpm': part_mdpm,
             'mdmt': part_mdmt,
@@ -1511,7 +1510,7 @@ async def main():
         logger.info(f'端到端流程完成，生成 {len(results)} 条推荐结果')
         if results:
             logger.info(
-                f'推荐结果示例: {json.dumps(results[0], ensure_ascii=False, indent=2)[:400]}...'
+                f'推荐结果示例: {json.dumps(results[0], ensure_ascii=False, indent=2, default=str)[:400]}...'
             )
         pipeline_state.finish_step('end_to_end', f'生成{len(results)}条推荐结果')
     except Exception as e:

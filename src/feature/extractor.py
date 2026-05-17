@@ -213,7 +213,7 @@ class FeatureExtractor:
             'valid': len(issues) == 0,
             'confidence': confidence,
             'issues': issues,
-            'feature': feature,
+            'feature': feature.model_dump(),
         }
 
     async def refine_features(

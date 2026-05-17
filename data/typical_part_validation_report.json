@@ -1,0 +1,2976 @@
+{
+  "overall_mdpm": 0.36363636363636365,
+  "overall_mdmt": 0.6363636363636364,
+  "overall_total": 11,
+  "parts": {
+    "shaft": {
+      "name": "轴",
+      "total_cases": 6,
+      "mdpm": 0.16666666666666666,
+      "mdmt": 1.0,
+      "results": [
+        {
+          "test_case": 0,
+          "feature_type": "外圆",
+          "expected_method": "粗车-半精车-精车",
+          "recommended_method": "粗车-半精车",
+          "method_match": false,
+          "tool_match": true,
+          "confidence": {
+            "level": "high",
+            "rank_score": 91.69,
+            "method_valid": true,
+            "parameters_valid": true
+          },
+          "output": {
+            "加工特征": "外圆",
+            "特征参数": {
+              "length": 200.0,
+              "diameter": 45.0,
+              "precision": "IT7",
+              "roughness": 1.6
+            },
+            "加工方法": "粗车-半精车",
+            "加工工艺路线": "选择棒料→车床装夹→粗车外圆至直径44.0mm留0.5mm余量→精车外圆至直径44.0mm",
+            "加工参数": {
+              "主轴转速(rpm)": 400.0,
+              "进给速度(mm/min)": 100.0,
+              "刀具直径(mm)": 45.0,
+              "切削深度(mm)": 0.5,
+              "切削宽度(mm)": 5.0
+            },
+            "方法验证": {
+              "valid": true,
+              "recommended": "粗车-半精车",
+              "valid_methods": [
+                "粗车-半精车",
+                "粗车-精车"
+              ]
+            },
+            "知识来源": {
+              "向量库(相似案例)": [
+                " → 粗车-半精车: 选择棒料→车床装夹→粗车外圆至直径6.0mm留0.5mm余量→精车外圆至直径6.0mm",
+                " → 粗车-半精车: 选择棒料→车床装夹→粗车外圆至直径80.0mm留0.5mm余量→精车外圆至直径80.0mm",
+                " → 粗车-半精车: 选择棒料→车床装夹→粗车外圆至直径40.0mm留0.5mm余量→精车外圆至直径40.0mm"
+              ],
+              "知识图谱(Neo4j)": {
+                "事实": [
+                  "圆弧面通过粗车-精车工艺加工。",
+                  "粗车-精车加工圆锥面",
+                  "数控车床加工了45号钢的外圆",
+                  "HAS_PART: 数控车床加工了45号钢的外圆",
+                  "HAS_PRECISION: 圆锥面加工至IT7精度",
+                  "IS_PERFORMED_ON: 精车外圆在数控车床上进行。"
+                ]
+              }
+            },
+            "参数校验": {
+              "校验通过": true,
+              "工艺类型": "turning",
+              "参数校验详情": {
+                "spindle_speed": {
+                  "valid": true,
+                  "value": 400.0,
+                  "reason": "参数在合理范围内"
+                },
+                "feed_rate": {
+                  "valid": true,
+                  "value": 100.0,
+                  "reason": "参数在合理范围内"
+                },
+                "tool_diameter": {
+                  "valid": true,
+                  "value": 45.0,
+                  "reason": "参数在合理范围内"
+                },
+                "cutting_depth": {
+                  "valid": true,
+                  "value": 0.5,
+                  "reason": "参数在合理范围内"
+                },
+                "cutting_width": {
+                  "valid": true,
+                  "value": 5.0,
+                  "reason": "参数在合理范围内"
+                }
+              },
+              "修正建议": {}
+            },
+            "候选方案": [
+              {
+                "排名": 1,
+                "加工方法": "粗车-半精车",
+                "加工工艺路线": "选择棒料→车床装夹→粗车外圆至直径44.0mm留0.5mm余量→精车外圆至直径44.0mm",
+                "评分": 91.69,
+                "评分详情": {
+                  "method_score": 40.0,
+                  "method_valid": true,
+                  "param_score": 40.0,
+                  "param_valid_count": 5,
+                  "param_total_count": 5,
+                  "kb_score": 11.69
+                },
+                "来源": "primary",
+                "加工参数": {
+                  "主轴转速(rpm)": 400.0,
+                  "进给速度(mm/min)": 100.0,
+                  "刀具直径(mm)": 45.0,
+                  "切削深度(mm)": 0.5,
+                  "切削宽度(mm)": 5.0
+                },
+                "方法验证": {
+                  "valid": true,
+                  "recommended": "粗车-半精车",
+                  "valid_methods": [
+                    "粗车-半精车",
+                    "粗车-精车"
+                  ]
+                },
+                "参数校验": {
+                  "校验通过": true,
+                  "参数校验详情": {
+                    "spindle_speed": {
+                      "valid": true,
+                      "value": 400.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "feed_rate": {
+                      "valid": true,
+                      "value": 100.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "tool_diameter": {
+                      "valid": true,
+                      "value": 45.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_depth": {
+                      "valid": true,
+                      "value": 0.5,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_width": {
+                      "valid": true,
+                      "value": 5.0,
+                      "reason": "参数在合理范围内"
+                    }
+                  }
+                }
+              },
+              {
+                "排名": 2,
+                "加工方法": "粗车-精车",
+                "加工工艺路线": "选择棒料→车床装夹→粗车外圆至直径44.0mm留0.5mm余量→精车外圆至直径45.0mm，确保加工精度达到IT7，表面粗糙度达到1.6μm",
+                "评分": 91.69,
+                "评分详情": {
+                  "method_score": 40.0,
+                  "method_valid": true,
+                  "param_score": 40.0,
+                  "param_valid_count": 5,
+                  "param_total_count": 5,
+                  "kb_score": 11.69
+                },
+                "来源": "alternative_粗车-精车",
+                "加工参数": {
+                  "主轴转速(rpm)": 500.0,
+                  "进给速度(mm/min)": 100.0,
+                  "刀具直径(mm)": 45.0,
+                  "切削深度(mm)": 0.5,
+                  "切削宽度(mm)": 5.0
+                },
+                "方法验证": {
+                  "valid": true,
+                  "recommended": "粗车-精车",
+                  "valid_methods": [
+                    "粗车-半精车",
+                    "粗车-精车"
+                  ]
+                },
+                "参数校验": {
+                  "校验通过": true,
+                  "参数校验详情": {
+                    "spindle_speed": {
+                      "valid": true,
+                      "value": 500.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "feed_rate": {
+                      "valid": true,
+                      "value": 100.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "tool_diameter": {
+                      "valid": true,
+                      "value": 45.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_depth": {
+                      "valid": true,
+                      "value": 0.5,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_width": {
+                      "valid": true,
+                      "value": 5.0,
+                      "reason": "参数在合理范围内"
+                    }
+                  }
+                }
+              },
+              {
+                "排名": 3,
+                "加工方法": "粗车-半精车",
+                "加工工艺路线": "选择棒料→车床装夹→粗车外圆至直径44.0mm留0.5mm余量→精车外圆至直径44.0mm",
+                "评分": 91.69,
+                "评分详情": {
+                  "method_score": 40.0,
+                  "method_valid": true,
+                  "param_score": 40.0,
+                  "param_valid_count": 5,
+                  "param_total_count": 5,
+                  "kb_score": 11.69
+                },
+                "来源": "variant_2",
+                "加工参数": {
+                  "主轴转速(rpm)": 426.67,
+                  "进给速度(mm/min)": 106.67,
+                  "刀具直径(mm)": 45.0,
+                  "切削深度(mm)": 0.5,
+                  "切削宽度(mm)": 5.0
+                },
+                "方法验证": {
+                  "valid": true,
+                  "recommended": "粗车-半精车",
+                  "valid_methods": [
+                    "粗车-半精车",
+                    "粗车-精车"
+                  ]
+                },
+                "参数校验": {
+                  "校验通过": true,
+                  "参数校验详情": {
+                    "spindle_speed": {
+                      "valid": true,
+                      "value": 426.67,
+                      "reason": "参数在合理范围内"
+                    },
+                    "feed_rate": {
+                      "valid": true,
+                      "value": 106.67,
+                      "reason": "参数在合理范围内"
+                    },
+                    "tool_diameter": {
+                      "valid": true,
+                      "value": 45.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_depth": {
+                      "valid": true,
+                      "value": 0.5,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_width": {
+                      "valid": true,
+                      "value": 5.0,
+                      "reason": "参数在合理范围内"
+                    }
+                  }
+                }
+              }
+            ],
+            "置信度": {
+              "level": "high",
+              "rank_score": 91.69,
+              "method_valid": true,
+              "parameters_valid": true
+            }
+          }
+        },
+        {
+          "test_case": 1,
+          "feature_type": "圆柱面",
+          "expected_method": "粗车-半精车-精车-磨削",
+          "recommended_method": "粗车-精车",
+          "method_match": false,
+          "tool_match": true,
+          "confidence": {
+            "level": "high",
+            "rank_score": 91.53,
+            "method_valid": true,
+            "parameters_valid": true
+          },
+          "output": {
+            "加工特征": "圆柱面",
+            "特征参数": {
+              "length": 80.0,
+              "diameter": 35.0,
+              "precision": "IT6",
+              "roughness": 0.8
+            },
+            "加工方法": "粗车-精车",
+            "加工工艺路线": "选择棒料→车床装夹→粗车圆柱面至直径34.0mm留0.5mm余量→精车至直径35.0mm",
+            "加工参数": {
+              "主轴转速(rpm)": 500.0,
+              "进给速度(mm/min)": 100.0,
+              "刀具直径(mm)": 35.0,
+              "切削深度(mm)": 0.5,
+              "切削宽度(mm)": 1.0
+            },
+            "方法验证": {
+              "valid": true,
+              "recommended": "粗车-精车",
+              "valid_methods": [
+                "粗车-精车",
+                "粗车-半精车-精车"
+              ]
+            },
+            "知识来源": {
+              "向量库(相似案例)": [
+                " → 粗车-精车: 选择棒料→车床装夹→粗车圆锥面留0.5mm余量→精车圆锥面至IT7精度",
+                " → 粗车-精车: 选择棒料→车床装夹→粗车圆柱面至直径20.0mm留0.5mm余量→精车至直径20.0mm",
+                " → 粗车-精车: 选择棒料→车床装夹→粗车圆锥面留0.5mm余量→精车圆锥面至IT7精度"
+              ],
+              "知识图谱(Neo4j)": {
+                "事实": [
+                  "粗车-精车加工圆锥面",
+                  "圆弧面通过粗车-精车工艺加工。",
+                  "圆柱面是在数控车床上加工的。",
+                  "PROCESSED_ON: 圆柱面是在数控车床上加工的。",
+                  "HAS_PRECISION: 圆锥面加工至IT7精度",
+                  "PROCESSES: 粗车-精车加工圆锥面"
+                ]
+              }
+            },
+            "参数校验": {
+              "校验通过": true,
+              "工艺类型": "turning",
+              "参数校验详情": {
+                "spindle_speed": {
+                  "valid": true,
+                  "value": 500.0,
+                  "reason": "参数在合理范围内"
+                },
+                "feed_rate": {
+                  "valid": true,
+                  "value": 100.0,
+                  "reason": "参数在合理范围内"
+                },
+                "tool_diameter": {
+                  "valid": true,
+                  "value": 35.0,
+                  "reason": "参数在合理范围内"
+                },
+                "cutting_depth": {
+                  "valid": true,
+                  "value": 0.5,
+                  "reason": "参数在合理范围内"
+                },
+                "cutting_width": {
+                  "valid": true,
+                  "value": 1.0,
+                  "reason": "参数在合理范围内"
+                }
+              },
+              "修正建议": {}
+            },
+            "候选方案": [
+              {
+                "排名": 1,
+                "加工方法": "粗车-精车",
+                "加工工艺路线": "选择棒料→车床装夹→粗车圆柱面至直径34.0mm留0.5mm余量→精车至直径35.0mm",
+                "评分": 91.53,
+                "评分详情": {
+                  "method_score": 40.0,
+                  "method_valid": true,
+                  "param_score": 40.0,
+                  "param_valid_count": 5,
+                  "param_total_count": 5,
+                  "kb_score": 11.53
+                },
+                "来源": "primary",
+                "加工参数": {
+                  "主轴转速(rpm)": 500.0,
+                  "进给速度(mm/min)": 100.0,
+                  "刀具直径(mm)": 35.0,
+                  "切削深度(mm)": 0.5,
+                  "切削宽度(mm)": 1.0
+                },
+                "方法验证": {
+                  "valid": true,
+                  "recommended": "粗车-精车",
+                  "valid_methods": [
+                    "粗车-精车",
+                    "粗车-半精车-精车"
+                  ]
+                },
+                "参数校验": {
+                  "校验通过": true,
+                  "参数校验详情": {
+                    "spindle_speed": {
+                      "valid": true,
+                      "value": 500.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "feed_rate": {
+                      "valid": true,
+                      "value": 100.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "tool_diameter": {
+                      "valid": true,
+                      "value": 35.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_depth": {
+                      "valid": true,
+                      "value": 0.5,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_width": {
+                      "valid": true,
+                      "value": 1.0,
+                      "reason": "参数在合理范围内"
+                    }
+                  }
+                }
+              },
+              {
+                "排名": 2,
+                "加工方法": "粗车-半精车-精车",
+                "加工工艺路线": "选择棒料→车床装夹→粗车圆柱面至直径34.5mm留0.5mm余量→半精车至直径35.0mm，精度IT6→精车至直径35.0mm，表面粗糙度0.8",
+                "评分": 91.53,
+                "评分详情": {
+                  "method_score": 40.0,
+                  "method_valid": true,
+                  "param_score": 40.0,
+                  "param_valid_count": 5,
+                  "param_total_count": 5,
+                  "kb_score": 11.53
+                },
+                "来源": "alternative_粗车-半精车-精车",
+                "加工参数": {
+                  "主轴转速(rpm)": 400.0,
+                  "进给速度(mm/min)": 50,
+                  "刀具直径(mm)": 35.0,
+                  "切削深度(mm)": 0.5,
+                  "切削宽度(mm)": 5.0
+                },
+                "方法验证": {
+                  "valid": true,
+                  "recommended": "粗车-半精车-精车",
+                  "valid_methods": [
+                    "粗车-精车",
+                    "粗车-半精车-精车"
+                  ]
+                },
+                "参数校验": {
+                  "校验通过": true,
+                  "参数校验详情": {
+                    "spindle_speed": {
+                      "valid": true,
+                      "value": 400.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "feed_rate": {
+                      "valid": true,
+                      "value": 50.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "tool_diameter": {
+                      "valid": true,
+                      "value": 35.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_depth": {
+                      "valid": true,
+                      "value": 0.5,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_width": {
+                      "valid": true,
+                      "value": 5.0,
+                      "reason": "参数在合理范围内"
+                    }
+                  }
+                }
+              },
+              {
+                "排名": 3,
+                "加工方法": "粗车-精车",
+                "加工工艺路线": "选择棒料→车床装夹→粗车圆柱面至直径34.0mm留0.5mm余量→精车至直径35.0mm",
+                "评分": 91.53,
+                "评分详情": {
+                  "method_score": 40.0,
+                  "method_valid": true,
+                  "param_score": 40.0,
+                  "param_valid_count": 5,
+                  "param_total_count": 5,
+                  "kb_score": 11.53
+                },
+                "来源": "variant_2",
+                "加工参数": {
+                  "主轴转速(rpm)": 533.33,
+                  "进给速度(mm/min)": 106.67,
+                  "刀具直径(mm)": 35.0,
+                  "切削深度(mm)": 0.5,
+                  "切削宽度(mm)": 1.0
+                },
+                "方法验证": {
+                  "valid": true,
+                  "recommended": "粗车-精车",
+                  "valid_methods": [
+                    "粗车-精车",
+                    "粗车-半精车-精车"
+                  ]
+                },
+                "参数校验": {
+                  "校验通过": true,
+                  "参数校验详情": {
+                    "spindle_speed": {
+                      "valid": true,
+                      "value": 533.33,
+                      "reason": "参数在合理范围内"
+                    },
+                    "feed_rate": {
+                      "valid": true,
+                      "value": 106.67,
+                      "reason": "参数在合理范围内"
+                    },
+                    "tool_diameter": {
+                      "valid": true,
+                      "value": 35.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_depth": {
+                      "valid": true,
+                      "value": 0.5,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_width": {
+                      "valid": true,
+                      "value": 1.0,
+                      "reason": "参数在合理范围内"
+                    }
+                  }
+                }
+              }
+            ],
+            "置信度": {
+              "level": "high",
+              "rank_score": 91.53,
+              "method_valid": true,
+              "parameters_valid": true
+            }
+          }
+        },
+        {
+          "test_case": 2,
+          "feature_type": "圆锥面",
+          "expected_method": "粗车-半精车-精车",
+          "recommended_method": "粗车-精车",
+          "method_match": false,
+          "tool_match": true,
+          "confidence": {
+            "level": "high",
+            "rank_score": 92.0,
+            "method_valid": true,
+            "parameters_valid": true
+          },
+          "output": {
+            "加工特征": "圆锥面",
+            "特征参数": {
+              "length": 50.0,
+              "diameter": 30.0,
+              "precision": "IT7",
+              "roughness": 1.6
+            },
+            "加工方法": "粗车-精车",
+            "加工工艺路线": "选择棒料→车床装夹→粗车圆锥面留0.5mm余量→精车圆锥面至IT7精度",
+            "加工参数": {
+              "主轴转速(rpm)": 800.0,
+              "进给速度(mm/min)": 300.0,
+              "刀具直径(mm)": 30.0,
+              "切削深度(mm)": 0.5,
+              "切削宽度(mm)": 5.0
+            },
+            "方法验证": {
+              "valid": true,
+              "recommended": "粗车-精车",
+              "valid_methods": [
+                "粗车-精车",
+                "粗车-半精车-精车"
+              ]
+            },
+            "知识来源": {
+              "向量库(相似案例)": [
+                " → 粗车-精车: 选择棒料→车床装夹→粗车圆锥面留0.5mm余量→精车圆锥面至IT7精度",
+                " → 粗车-精车: 选择棒料→车床装夹→粗车圆锥面留0.5mm余量→精车圆锥面至IT7精度",
+                " → 粗车-精车: 选择棒料→车床装夹→粗车圆锥面留0.5mm余量→精车圆锥面至IT7精度"
+              ],
+              "知识图谱(Neo4j)": {
+                "事实": [
+                  "圆锥面加工至IT7精度",
+                  "粗车-精车加工圆锥面",
+                  "粗车-精车加工应用于圆锥面。",
+                  "HAS_PRECISION: 圆锥面加工至IT7精度",
+                  "PROCESSES: 粗车-精车加工圆锥面",
+                  "APPLIED_TO: 粗车-精车加工应用于圆锥面。"
+                ]
+              }
+            },
+            "参数校验": {
+              "校验通过": true,
+              "工艺类型": "turning",
+              "参数校验详情": {
+                "spindle_speed": {
+                  "valid": true,
+                  "value": 800.0,
+                  "reason": "参数在合理范围内"
+                },
+                "feed_rate": {
+                  "valid": true,
+                  "value": 300.0,
+                  "reason": "参数在合理范围内"
+                },
+                "tool_diameter": {
+                  "valid": true,
+                  "value": 30.0,
+                  "reason": "参数在合理范围内"
+                },
+                "cutting_depth": {
+                  "valid": true,
+                  "value": 0.5,
+                  "reason": "参数在合理范围内"
+                },
+                "cutting_width": {
+                  "valid": true,
+                  "value": 5.0,
+                  "reason": "参数在合理范围内"
+                }
+              },
+              "修正建议": {}
+            },
+            "候选方案": [
+              {
+                "排名": 1,
+                "加工方法": "粗车-精车",
+                "加工工艺路线": "选择棒料→车床装夹→粗车圆锥面留0.5mm余量→精车圆锥面至IT7精度",
+                "评分": 92.0,
+                "评分详情": {
+                  "method_score": 40.0,
+                  "method_valid": true,
+                  "param_score": 40.0,
+                  "param_valid_count": 5,
+                  "param_total_count": 5,
+                  "kb_score": 12.0
+                },
+                "来源": "primary",
+                "加工参数": {
+                  "主轴转速(rpm)": 800.0,
+                  "进给速度(mm/min)": 300.0,
+                  "刀具直径(mm)": 30.0,
+                  "切削深度(mm)": 0.5,
+                  "切削宽度(mm)": 5.0
+                },
+                "方法验证": {
+                  "valid": true,
+                  "recommended": "粗车-精车",
+                  "valid_methods": [
+                    "粗车-精车",
+                    "粗车-半精车-精车"
+                  ]
+                },
+                "参数校验": {
+                  "校验通过": true,
+                  "参数校验详情": {
+                    "spindle_speed": {
+                      "valid": true,
+                      "value": 800.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "feed_rate": {
+                      "valid": true,
+                      "value": 300.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "tool_diameter": {
+                      "valid": true,
+                      "value": 30.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_depth": {
+                      "valid": true,
+                      "value": 0.5,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_width": {
+                      "valid": true,
+                      "value": 5.0,
+                      "reason": "参数在合理范围内"
+                    }
+                  }
+                }
+              },
+              {
+                "排名": 2,
+                "加工方法": "粗车-半精车-精车",
+                "加工工艺路线": "选择棒料→车床装夹→粗车圆锥面留0.5mm余量→精车圆锥面至IT7精度",
+                "评分": 92.0,
+                "评分详情": {
+                  "method_score": 40.0,
+                  "method_valid": true,
+                  "param_score": 40.0,
+                  "param_valid_count": 5,
+                  "param_total_count": 5,
+                  "kb_score": 12.0
+                },
+                "来源": "alternative_粗车-半精车-精车",
+                "加工参数": {
+                  "主轴转速(rpm)": 500.0,
+                  "进给速度(mm/min)": 100.0,
+                  "刀具直径(mm)": 30.0,
+                  "切削深度(mm)": 0.5,
+                  "切削宽度(mm)": 10.0
+                },
+                "方法验证": {
+                  "valid": true,
+                  "recommended": "粗车-半精车-精车",
+                  "valid_methods": [
+                    "粗车-精车",
+                    "粗车-半精车-精车"
+                  ]
+                },
+                "参数校验": {
+                  "校验通过": true,
+                  "参数校验详情": {
+                    "spindle_speed": {
+                      "valid": true,
+                      "value": 500.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "feed_rate": {
+                      "valid": true,
+                      "value": 100.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "tool_diameter": {
+                      "valid": true,
+                      "value": 30.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_depth": {
+                      "valid": true,
+                      "value": 0.5,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_width": {
+                      "valid": true,
+                      "value": 10.0,
+                      "reason": "参数在合理范围内"
+                    }
+                  }
+                }
+              },
+              {
+                "排名": 3,
+                "加工方法": "粗车-精车",
+                "加工工艺路线": "选择棒料→车床装夹→粗车圆锥面留0.5mm余量→精车圆锥面至IT7精度",
+                "评分": 92.0,
+                "评分详情": {
+                  "method_score": 40.0,
+                  "method_valid": true,
+                  "param_score": 40.0,
+                  "param_valid_count": 5,
+                  "param_total_count": 5,
+                  "kb_score": 12.0
+                },
+                "来源": "variant_2",
+                "加工参数": {
+                  "主轴转速(rpm)": 853.33,
+                  "进给速度(mm/min)": 320.0,
+                  "刀具直径(mm)": 30.0,
+                  "切削深度(mm)": 0.5,
+                  "切削宽度(mm)": 5.0
+                },
+                "方法验证": {
+                  "valid": true,
+                  "recommended": "粗车-精车",
+                  "valid_methods": [
+                    "粗车-精车",
+                    "粗车-半精车-精车"
+                  ]
+                },
+                "参数校验": {
+                  "校验通过": true,
+                  "参数校验详情": {
+                    "spindle_speed": {
+                      "valid": true,
+                      "value": 853.33,
+                      "reason": "参数在合理范围内"
+                    },
+                    "feed_rate": {
+                      "valid": true,
+                      "value": 320.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "tool_diameter": {
+                      "valid": true,
+                      "value": 30.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_depth": {
+                      "valid": true,
+                      "value": 0.5,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_width": {
+                      "valid": true,
+                      "value": 5.0,
+                      "reason": "参数在合理范围内"
+                    }
+                  }
+                }
+              }
+            ],
+            "置信度": {
+              "level": "high",
+              "rank_score": 92.0,
+              "method_valid": true,
+              "parameters_valid": true
+            }
+          }
+        },
+        {
+          "test_case": 3,
+          "feature_type": "螺纹",
+          "expected_method": "车螺纹",
+          "recommended_method": "车螺纹",
+          "method_match": true,
+          "tool_match": true,
+          "confidence": {
+            "level": "high",
+            "rank_score": 91.64,
+            "method_valid": true,
+            "parameters_valid": true
+          },
+          "output": {
+            "加工特征": "螺纹",
+            "特征参数": {
+              "length": 30.0,
+              "diameter": 20.0,
+              "precision": "IT7",
+              "roughness": 3.2
+            },
+            "加工方法": "车螺纹",
+            "加工工艺路线": "选择棒料→车床装夹→车螺纹底径→精车螺纹至标准",
+            "加工参数": {
+              "主轴转速(rpm)": 600.0,
+              "进给速度(mm/min)": 200.0,
+              "刀具直径(mm)": 20.0,
+              "切削深度(mm)": 1.5,
+              "切削宽度(mm)": 1.0
+            },
+            "方法验证": {
+              "valid": true,
+              "recommended": "车螺纹",
+              "valid_methods": [
+                "车螺纹",
+                "铣螺纹"
+              ]
+            },
+            "知识来源": {
+              "向量库(相似案例)": [
+                " → 车螺纹: 选择棒料→车床装夹→车螺纹底径→精车螺纹至标准",
+                " → 车螺纹: 选择棒料→车床装夹→车螺纹底径→精车螺纹至标准",
+                " → 车螺纹: 选择棒料→车床装夹→车螺纹底径→精车螺纹至标准"
+              ],
+              "知识图谱(Neo4j)": {
+                "事实": [
+                  "车螺纹用于加工棒料。",
+                  "螺纹底径在车床上进行加工。",
+                  "数控车床用于车螺纹底径→精车螺纹至标准的加工过程。",
+                  "MAKES_OF: 车螺纹用于加工棒料。",
+                  "IS_PROCESSED_BY: 螺纹底径在车床上进行加工。",
+                  "PERFORMED_ON: 数控车床用于车螺纹底径→精车螺纹至标准的加工过程。"
+                ]
+              }
+            },
+            "参数校验": {
+              "校验通过": true,
+              "工艺类型": "turning",
+              "参数校验详情": {
+                "spindle_speed": {
+                  "valid": true,
+                  "value": 600.0,
+                  "reason": "参数在合理范围内"
+                },
+                "feed_rate": {
+                  "valid": true,
+                  "value": 200.0,
+                  "reason": "参数在合理范围内"
+                },
+                "tool_diameter": {
+                  "valid": true,
+                  "value": 20.0,
+                  "reason": "参数在合理范围内"
+                },
+                "cutting_depth": {
+                  "valid": true,
+                  "value": 1.5,
+                  "reason": "参数在合理范围内"
+                },
+                "cutting_width": {
+                  "valid": true,
+                  "value": 1.0,
+                  "reason": "参数在合理范围内"
+                }
+              },
+              "修正建议": {}
+            },
+            "候选方案": [
+              {
+                "排名": 1,
+                "加工方法": "车螺纹",
+                "加工工艺路线": "选择棒料→车床装夹→车螺纹底径→精车螺纹至标准",
+                "评分": 91.64,
+                "评分详情": {
+                  "method_score": 40.0,
+                  "method_valid": true,
+                  "param_score": 40.0,
+                  "param_valid_count": 5,
+                  "param_total_count": 5,
+                  "kb_score": 11.64
+                },
+                "来源": "alternative_铣螺纹",
+                "加工参数": {
+                  "主轴转速(rpm)": 600.0,
+                  "进给速度(mm/min)": 200.0,
+                  "刀具直径(mm)": 20.0,
+                  "切削深度(mm)": 1.5,
+                  "切削宽度(mm)": 1.0
+                },
+                "方法验证": {
+                  "valid": true,
+                  "recommended": "车螺纹",
+                  "valid_methods": [
+                    "车螺纹",
+                    "铣螺纹"
+                  ]
+                },
+                "参数校验": {
+                  "校验通过": true,
+                  "参数校验详情": {
+                    "spindle_speed": {
+                      "valid": true,
+                      "value": 600.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "feed_rate": {
+                      "valid": true,
+                      "value": 200.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "tool_diameter": {
+                      "valid": true,
+                      "value": 20.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_depth": {
+                      "valid": true,
+                      "value": 1.5,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_width": {
+                      "valid": true,
+                      "value": 1.0,
+                      "reason": "参数在合理范围内"
+                    }
+                  }
+                }
+              },
+              {
+                "排名": 2,
+                "加工方法": "车螺纹",
+                "加工工艺路线": "选择棒料→车床装夹→车螺纹底径→精车螺纹至标准",
+                "评分": 83.64,
+                "评分详情": {
+                  "method_score": 40.0,
+                  "method_valid": true,
+                  "param_score": 32.0,
+                  "param_valid_count": 4,
+                  "param_total_count": 5,
+                  "kb_score": 11.64
+                },
+                "来源": "alternative_车螺纹",
+                "加工参数": {
+                  "主轴转速(rpm)": 400.0,
+                  "进给速度(mm/min)": 50,
+                  "刀具直径(mm)": 16.0,
+                  "切削深度(mm)": 0.5,
+                  "切削宽度(mm)": 5.0
+                },
+                "方法验证": {
+                  "valid": true,
+                  "recommended": "车螺纹",
+                  "valid_methods": [
+                    "车螺纹",
+                    "铣螺纹"
+                  ]
+                },
+                "参数校验": {
+                  "校验通过": false,
+                  "参数校验详情": {
+                    "spindle_speed": {
+                      "valid": true,
+                      "value": 400.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "feed_rate": {
+                      "valid": false,
+                      "value": 30.0,
+                      "reason": "进给速度(mm/min)=30.00低于最小值50"
+                    },
+                    "tool_diameter": {
+                      "valid": true,
+                      "value": 16.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_depth": {
+                      "valid": true,
+                      "value": 0.5,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_width": {
+                      "valid": true,
+                      "value": 5.0,
+                      "reason": "参数在合理范围内"
+                    }
+                  }
+                }
+              },
+              {
+                "排名": 3,
+                "加工方法": "粗车-精车",
+                "加工工艺路线": "选择棒料→车床装夹→车螺纹底径→精车螺纹至标准",
+                "评分": 40.64,
+                "评分详情": {
+                  "method_score": 5.0,
+                  "method_valid": false,
+                  "param_score": 24.0,
+                  "param_valid_count": 3,
+                  "param_total_count": 5,
+                  "kb_score": 11.64
+                },
+                "来源": "primary",
+                "加工参数": {
+                  "主轴转速(rpm)": 3000,
+                  "进给速度(mm/min)": 50,
+                  "刀具直径(mm)": 20.0,
+                  "切削深度(mm)": 0.1,
+                  "切削宽度(mm)": 1.0
+                },
+                "方法验证": {
+                  "valid": false,
+                  "recommended": "粗车-精车",
+                  "valid_methods": [
+                    "车螺纹",
+                    "铣螺纹"
+                  ]
+                },
+                "参数校验": {
+                  "校验通过": false,
+                  "参数校验详情": {
+                    "spindle_speed": {
+                      "valid": false,
+                      "value": 8000.0,
+                      "reason": "主轴转速(rpm)=8000.00超过最大值3000"
+                    },
+                    "feed_rate": {
+                      "valid": false,
+                      "value": 30.0,
+                      "reason": "进给速度(mm/min)=30.00低于最小值50"
+                    },
+                    "tool_diameter": {
+                      "valid": true,
+                      "value": 20.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_depth": {
+                      "valid": true,
+                      "value": 0.1,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_width": {
+                      "valid": true,
+                      "value": 1.0,
+                      "reason": "参数在合理范围内"
+                    }
+                  }
+                }
+              }
+            ],
+            "置信度": {
+              "level": "high",
+              "rank_score": 91.64,
+              "method_valid": true,
+              "parameters_valid": true
+            }
+          }
+        },
+        {
+          "test_case": 4,
+          "feature_type": "键槽",
+          "expected_method": "粗铣-半精铣",
+          "recommended_method": "粗铣-精铣",
+          "method_match": false,
+          "tool_match": true,
+          "confidence": {
+            "level": "medium",
+            "rank_score": 91.12,
+            "method_valid": false,
+            "parameters_valid": true
+          },
+          "output": {
+            "加工特征": "键槽",
+            "特征参数": {
+              "length": 40.0,
+              "width": 8.0,
+              "depth": 4.0,
+              "precision": "IT9",
+              "roughness": 6.3
+            },
+            "加工方法": "粗铣-精铣",
+            "加工工艺路线": "选择工件→CNC定位→使用直径为6.4mm的铣刀进行粗铣→切削深度为3.5mm，切削宽度为8.0mm→清理毛刺→使用直径为6.0mm的铣刀进行精铣→切削深度为2.0mm，切削宽度为8.0mm→检查精度和表面粗糙度",
+            "加工参数": {
+              "主轴转速(rpm)": 500,
+              "进给速度(mm/min)": 466.67,
+              "刀具直径(mm)": 6.4,
+              "切削深度(mm)": 3.5,
+              "切削宽度(mm)": 8.0
+            },
+            "知识来源": {
+              "向量库(相似案例)": [
+                " → 钻-扩-铰: 选择工件→CNC定位→钻头钻孔→扩孔钻扩孔→铰刀铰孔至直径20.0mm",
+                " → 钻-扩-铰: 选择工件→CNC定位→钻头钻孔→扩孔钻扩孔→铰刀铰孔至直径6.0mm",
+                " → 滚齿-剃齿: 选择棒料→车床装夹→粗车外圆→精车外圆→滚齿加工齿形→剃齿精加工"
+              ],
+              "知识图谱(Neo4j)": {
+                "事实": [
+                  "圆弧面通过粗车-精车工艺加工。",
+                  "粗车-精车加工圆锥面",
+                  "钻-扩-铰工艺包括铰刀铰孔。",
+                  "HAS_PARAMETER: 数控车床的cutting_depth参数设置为2.0。",
+                  "HAS_PARAMETER: 数控车床的spindle_speed参数设置为1200.0。",
+                  "HAS_PRECISION: 圆锥面加工至IT7精度"
+                ]
+              }
+            },
+            "参数校验": {
+              "校验通过": true,
+              "工艺类型": "milling",
+              "参数校验详情": {
+                "spindle_speed": {
+                  "valid": true,
+                  "value": 500.0,
+                  "reason": "参数在合理范围内"
+                },
+                "feed_rate": {
+                  "valid": true,
+                  "value": 466.67,
+                  "reason": "参数在合理范围内"
+                },
+                "tool_diameter": {
+                  "valid": true,
+                  "value": 6.4,
+                  "reason": "参数在合理范围内"
+                },
+                "cutting_depth": {
+                  "valid": true,
+                  "value": 3.5,
+                  "reason": "参数在合理范围内"
+                },
+                "cutting_width": {
+                  "valid": true,
+                  "value": 8.0,
+                  "reason": "参数在合理范围内"
+                }
+              },
+              "修正建议": {}
+            },
+            "候选方案": [
+              {
+                "排名": 1,
+                "加工方法": "粗铣-精铣",
+                "加工工艺路线": "选择工件→CNC定位→使用直径为6.4mm的铣刀进行粗铣→切削深度为3.5mm，切削宽度为8.0mm→清理毛刺→使用直径为6.0mm的铣刀进行精铣→切削深度为2.0mm，切削宽度为8.0mm→检查精度和表面粗糙度",
+                "评分": 91.12,
+                "评分详情": {
+                  "method_score": 40.0,
+                  "method_valid": true,
+                  "param_score": 40.0,
+                  "param_valid_count": 5,
+                  "param_total_count": 5,
+                  "kb_score": 11.12
+                },
+                "来源": "variant_1",
+                "加工参数": {
+                  "主轴转速(rpm)": 500,
+                  "进给速度(mm/min)": 466.67,
+                  "刀具直径(mm)": 6.4,
+                  "切削深度(mm)": 3.5,
+                  "切削宽度(mm)": 8.0
+                },
+                "参数校验": {
+                  "校验通过": true,
+                  "参数校验详情": {
+                    "spindle_speed": {
+                      "valid": true,
+                      "value": 500.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "feed_rate": {
+                      "valid": true,
+                      "value": 466.67,
+                      "reason": "参数在合理范围内"
+                    },
+                    "tool_diameter": {
+                      "valid": true,
+                      "value": 6.4,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_depth": {
+                      "valid": true,
+                      "value": 3.5,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_width": {
+                      "valid": true,
+                      "value": 8.0,
+                      "reason": "参数在合理范围内"
+                    }
+                  }
+                }
+              },
+              {
+                "排名": 2,
+                "加工方法": "粗铣-精铣",
+                "加工工艺路线": "选择工件→CNC定位→使用直径为6.4mm的铣刀进行粗铣→切削深度为3.5mm，切削宽度为8.0mm→清理毛刺→使用直径为6.0mm的铣刀进行精铣→切削深度为2.0mm，切削宽度为8.0mm→检查精度和表面粗糙度",
+                "评分": 91.12,
+                "评分详情": {
+                  "method_score": 40.0,
+                  "method_valid": true,
+                  "param_score": 40.0,
+                  "param_valid_count": 5,
+                  "param_total_count": 5,
+                  "kb_score": 11.12
+                },
+                "来源": "variant_2",
+                "加工参数": {
+                  "主轴转速(rpm)": 500,
+                  "进给速度(mm/min)": 533.33,
+                  "刀具直径(mm)": 6.4,
+                  "切削深度(mm)": 3.5,
+                  "切削宽度(mm)": 8.0
+                },
+                "参数校验": {
+                  "校验通过": true,
+                  "参数校验详情": {
+                    "spindle_speed": {
+                      "valid": true,
+                      "value": 500.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "feed_rate": {
+                      "valid": true,
+                      "value": 533.33,
+                      "reason": "参数在合理范围内"
+                    },
+                    "tool_diameter": {
+                      "valid": true,
+                      "value": 6.4,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_depth": {
+                      "valid": true,
+                      "value": 3.5,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_width": {
+                      "valid": true,
+                      "value": 8.0,
+                      "reason": "参数在合理范围内"
+                    }
+                  }
+                }
+              },
+              {
+                "排名": 3,
+                "加工方法": "粗铣-精铣",
+                "加工工艺路线": "选择工件→CNC定位→使用直径为6.4mm的铣刀进行粗铣→切削深度为3.5mm，切削宽度为8.0mm→清理毛刺→使用直径为6.0mm的铣刀进行精铣→切削深度为2.0mm，切削宽度为8.0mm→检查精度和表面粗糙度",
+                "评分": 83.12,
+                "评分详情": {
+                  "method_score": 40.0,
+                  "method_valid": true,
+                  "param_score": 32.0,
+                  "param_valid_count": 4,
+                  "param_total_count": 5,
+                  "kb_score": 11.12
+                },
+                "来源": "primary",
+                "加工参数": {
+                  "主轴转速(rpm)": 500,
+                  "进给速度(mm/min)": 500.0,
+                  "刀具直径(mm)": 6.4,
+                  "切削深度(mm)": 3.5,
+                  "切削宽度(mm)": 8.0
+                },
+                "参数校验": {
+                  "校验通过": false,
+                  "参数校验详情": {
+                    "spindle_speed": {
+                      "valid": false,
+                      "value": 400.0,
+                      "reason": "主轴转速(rpm)=400.00低于最小值500"
+                    },
+                    "feed_rate": {
+                      "valid": true,
+                      "value": 500.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "tool_diameter": {
+                      "valid": true,
+                      "value": 6.4,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_depth": {
+                      "valid": true,
+                      "value": 3.5,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_width": {
+                      "valid": true,
+                      "value": 8.0,
+                      "reason": "参数在合理范围内"
+                    }
+                  }
+                }
+              }
+            ],
+            "置信度": {
+              "level": "medium",
+              "rank_score": 91.12,
+              "method_valid": false,
+              "parameters_valid": true
+            }
+          }
+        },
+        {
+          "test_case": 5,
+          "feature_type": "外圆",
+          "expected_method": "粗车-半精车-精车-磨削",
+          "recommended_method": "粗车-精车",
+          "method_match": false,
+          "tool_match": true,
+          "confidence": {
+            "level": "high",
+            "rank_score": 91.83,
+            "method_valid": true,
+            "parameters_valid": true
+          },
+          "output": {
+            "加工特征": "外圆",
+            "特征参数": {
+              "length": 60.0,
+              "diameter": 25.0,
+              "precision": "IT6",
+              "roughness": 0.4
+            },
+            "加工方法": "粗车-精车",
+            "加工工艺路线": "选择棒料→车床装夹→粗车外圆至直径24.0mm留0.5mm余量→精车外圆至直径25.0mm",
+            "加工参数": {
+              "主轴转速(rpm)": 400.0,
+              "进给速度(mm/min)": 100.0,
+              "刀具直径(mm)": 25.0,
+              "切削深度(mm)": 0.5,
+              "切削宽度(mm)": 1.0
+            },
+            "方法验证": {
+              "valid": true,
+              "recommended": "粗车-精车",
+              "valid_methods": [
+                "粗车-半精车",
+                "粗车-精车"
+              ]
+            },
+            "知识来源": {
+              "向量库(相似案例)": [
+                " → 粗车-半精车: 选择棒料→车床装夹→粗车外圆至直径6.0mm留0.5mm余量→精车外圆至直径6.0mm",
+                " → 粗车-半精车: 选择棒料→车床装夹→粗车外圆至直径80.0mm留0.5mm余量→精车外圆至直径80.0mm",
+                " → 粗车-半精车: 选择棒料→车床装夹→粗车外圆至直径40.0mm留0.5mm余量→精车外圆至直径40.0mm"
+              ],
+              "知识图谱(Neo4j)": {
+                "事实": [
+                  "圆弧面通过粗车-精车工艺加工。",
+                  "粗车-精车加工圆锥面",
+                  "数控车床加工了45号钢的外圆",
+                  "HAS_PART: 数控车床加工了45号钢的外圆",
+                  "HAS_PRECISION: 圆锥面加工至IT7精度",
+                  "IS_PERFORMED_ON: 精车外圆在数控车床上进行。"
+                ]
+              }
+            },
+            "参数校验": {
+              "校验通过": true,
+              "工艺类型": "turning",
+              "参数校验详情": {
+                "spindle_speed": {
+                  "valid": true,
+                  "value": 400.0,
+                  "reason": "参数在合理范围内"
+                },
+                "feed_rate": {
+                  "valid": true,
+                  "value": 100.0,
+                  "reason": "参数在合理范围内"
+                },
+                "tool_diameter": {
+                  "valid": true,
+                  "value": 25.0,
+                  "reason": "参数在合理范围内"
+                },
+                "cutting_depth": {
+                  "valid": true,
+                  "value": 0.5,
+                  "reason": "参数在合理范围内"
+                },
+                "cutting_width": {
+                  "valid": true,
+                  "value": 1.0,
+                  "reason": "参数在合理范围内"
+                }
+              },
+              "修正建议": {}
+            },
+            "候选方案": [
+              {
+                "排名": 1,
+                "加工方法": "粗车-精车",
+                "加工工艺路线": "选择棒料→车床装夹→粗车外圆至直径24.0mm留0.5mm余量→精车外圆至直径25.0mm",
+                "评分": 91.83,
+                "评分详情": {
+                  "method_score": 40.0,
+                  "method_valid": true,
+                  "param_score": 40.0,
+                  "param_valid_count": 5,
+                  "param_total_count": 5,
+                  "kb_score": 11.83
+                },
+                "来源": "primary",
+                "加工参数": {
+                  "主轴转速(rpm)": 400.0,
+                  "进给速度(mm/min)": 100.0,
+                  "刀具直径(mm)": 25.0,
+                  "切削深度(mm)": 0.5,
+                  "切削宽度(mm)": 1.0
+                },
+                "方法验证": {
+                  "valid": true,
+                  "recommended": "粗车-精车",
+                  "valid_methods": [
+                    "粗车-半精车",
+                    "粗车-精车"
+                  ]
+                },
+                "参数校验": {
+                  "校验通过": true,
+                  "参数校验详情": {
+                    "spindle_speed": {
+                      "valid": true,
+                      "value": 400.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "feed_rate": {
+                      "valid": true,
+                      "value": 100.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "tool_diameter": {
+                      "valid": true,
+                      "value": 25.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_depth": {
+                      "valid": true,
+                      "value": 0.5,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_width": {
+                      "valid": true,
+                      "value": 1.0,
+                      "reason": "参数在合理范围内"
+                    }
+                  }
+                }
+              },
+              {
+                "排名": 2,
+                "加工方法": "粗车-半精车",
+                "加工工艺路线": "选择棒料→车床装夹→粗车外圆至直径24.5mm留0.5mm余量→精车外圆至直径25.0mm",
+                "评分": 91.83,
+                "评分详情": {
+                  "method_score": 40.0,
+                  "method_valid": true,
+                  "param_score": 40.0,
+                  "param_valid_count": 5,
+                  "param_total_count": 5,
+                  "kb_score": 11.83
+                },
+                "来源": "alternative_粗车-半精车",
+                "加工参数": {
+                  "主轴转速(rpm)": 400.0,
+                  "进给速度(mm/min)": 100.0,
+                  "刀具直径(mm)": 25.0,
+                  "切削深度(mm)": 0.5,
+                  "切削宽度(mm)": 5.0
+                },
+                "方法验证": {
+                  "valid": true,
+                  "recommended": "粗车-半精车",
+                  "valid_methods": [
+                    "粗车-半精车",
+                    "粗车-精车"
+                  ]
+                },
+                "参数校验": {
+                  "校验通过": true,
+                  "参数校验详情": {
+                    "spindle_speed": {
+                      "valid": true,
+                      "value": 400.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "feed_rate": {
+                      "valid": true,
+                      "value": 100.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "tool_diameter": {
+                      "valid": true,
+                      "value": 25.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_depth": {
+                      "valid": true,
+                      "value": 0.5,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_width": {
+                      "valid": true,
+                      "value": 5.0,
+                      "reason": "参数在合理范围内"
+                    }
+                  }
+                }
+              },
+              {
+                "排名": 3,
+                "加工方法": "粗车-精车",
+                "加工工艺路线": "选择棒料→车床装夹→粗车外圆至直径24.0mm留0.5mm余量→精车外圆至直径25.0mm",
+                "评分": 91.83,
+                "评分详情": {
+                  "method_score": 40.0,
+                  "method_valid": true,
+                  "param_score": 40.0,
+                  "param_valid_count": 5,
+                  "param_total_count": 5,
+                  "kb_score": 11.83
+                },
+                "来源": "variant_2",
+                "加工参数": {
+                  "主轴转速(rpm)": 426.67,
+                  "进给速度(mm/min)": 106.67,
+                  "刀具直径(mm)": 25.0,
+                  "切削深度(mm)": 0.5,
+                  "切削宽度(mm)": 1.0
+                },
+                "方法验证": {
+                  "valid": true,
+                  "recommended": "粗车-精车",
+                  "valid_methods": [
+                    "粗车-半精车",
+                    "粗车-精车"
+                  ]
+                },
+                "参数校验": {
+                  "校验通过": true,
+                  "参数校验详情": {
+                    "spindle_speed": {
+                      "valid": true,
+                      "value": 426.67,
+                      "reason": "参数在合理范围内"
+                    },
+                    "feed_rate": {
+                      "valid": true,
+                      "value": 106.67,
+                      "reason": "参数在合理范围内"
+                    },
+                    "tool_diameter": {
+                      "valid": true,
+                      "value": 25.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_depth": {
+                      "valid": true,
+                      "value": 0.5,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_width": {
+                      "valid": true,
+                      "value": 1.0,
+                      "reason": "参数在合理范围内"
+                    }
+                  }
+                }
+              }
+            ],
+            "置信度": {
+              "level": "high",
+              "rank_score": 91.83,
+              "method_valid": true,
+              "parameters_valid": true
+            }
+          }
+        }
+      ]
+    },
+    "gear": {
+      "name": "齿轮",
+      "total_cases": 5,
+      "mdpm": 0.6,
+      "mdmt": 0.2,
+      "results": [
+        {
+          "test_case": 0,
+          "feature_type": "齿形",
+          "expected_method": "滚齿-剃齿",
+          "recommended_method": "滚齿-剃齿",
+          "method_match": true,
+          "tool_match": false,
+          "confidence": {
+            "level": "high",
+            "rank_score": 91.84,
+            "method_valid": true,
+            "parameters_valid": true
+          },
+          "output": {
+            "加工特征": "齿形",
+            "特征参数": {
+              "length": 30.0,
+              "diameter": 120.0,
+              "precision": "IT6",
+              "roughness": 0.8
+            },
+            "加工方法": "滚齿-剃齿",
+            "加工工艺路线": "选择棒料→车床装夹→粗车外圆→精车外圆→滚齿加工齿形→剃齿精加工",
+            "加工参数": {
+              "主轴转速(rpm)": 500.0,
+              "进给速度(mm/min)": 100.0,
+              "刀具直径(mm)": 96.0,
+              "切削深度(mm)": 5.0,
+              "切削宽度(mm)": 10.0
+            },
+            "方法验证": {
+              "valid": true,
+              "recommended": "滚齿-剃齿",
+              "valid_methods": [
+                "滚齿-剃齿",
+                "铣齿-磨齿"
+              ]
+            },
+            "知识来源": {
+              "向量库(相似案例)": [
+                " → 滚齿-剃齿: 选择棒料→车床装夹→粗车外圆→精车外圆→滚齿加工齿形→剃齿精加工",
+                " → 滚齿-剃齿: 选择棒料→车床装夹→粗车外圆→精车外圆→滚齿加工齿形→剃齿精加工",
+                " → 滚齿-剃齿: 选择棒料→车床装夹→粗车外圆→精车外圆→滚齿加工齿形→剃齿精加工"
+              ],
+              "知识图谱(Neo4j)": {
+                "事实": [
+                  "滚齿加工齿形在数控车床上进行。",
+                  "粗车-精车加工圆锥面",
+                  "圆弧面通过粗车-精车工艺加工。",
+                  "IS_PERFORMED_ON: 滚齿加工齿形在数控车床上进行。",
+                  "HAS_PRECISION: 圆锥面加工至IT7精度",
+                  "IS_PERFORMED_ON: 剃齿精加工在数控车床上进行。"
+                ]
+              }
+            },
+            "参数校验": {
+              "校验通过": true,
+              "工艺类型": "turning",
+              "参数校验详情": {
+                "spindle_speed": {
+                  "valid": true,
+                  "value": 500.0,
+                  "reason": "参数在合理范围内"
+                },
+                "feed_rate": {
+                  "valid": true,
+                  "value": 100.0,
+                  "reason": "参数在合理范围内"
+                },
+                "tool_diameter": {
+                  "valid": true,
+                  "value": 96.0,
+                  "reason": "参数在合理范围内"
+                },
+                "cutting_depth": {
+                  "valid": true,
+                  "value": 5.0,
+                  "reason": "参数在合理范围内"
+                },
+                "cutting_width": {
+                  "valid": true,
+                  "value": 10.0,
+                  "reason": "参数在合理范围内"
+                }
+              },
+              "修正建议": {}
+            },
+            "候选方案": [
+              {
+                "排名": 1,
+                "加工方法": "滚齿-剃齿",
+                "加工工艺路线": "选择棒料→车床装夹→粗车外圆→精车外圆→滚齿加工齿形→剃齿精加工",
+                "评分": 91.84,
+                "评分详情": {
+                  "method_score": 40.0,
+                  "method_valid": true,
+                  "param_score": 40.0,
+                  "param_valid_count": 5,
+                  "param_total_count": 5,
+                  "kb_score": 11.84
+                },
+                "来源": "primary",
+                "加工参数": {
+                  "主轴转速(rpm)": 500.0,
+                  "进给速度(mm/min)": 100.0,
+                  "刀具直径(mm)": 96.0,
+                  "切削深度(mm)": 5.0,
+                  "切削宽度(mm)": 10.0
+                },
+                "方法验证": {
+                  "valid": true,
+                  "recommended": "滚齿-剃齿",
+                  "valid_methods": [
+                    "滚齿-剃齿",
+                    "铣齿-磨齿"
+                  ]
+                },
+                "参数校验": {
+                  "校验通过": true,
+                  "参数校验详情": {
+                    "spindle_speed": {
+                      "valid": true,
+                      "value": 500.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "feed_rate": {
+                      "valid": true,
+                      "value": 100.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "tool_diameter": {
+                      "valid": true,
+                      "value": 96.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_depth": {
+                      "valid": true,
+                      "value": 5.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_width": {
+                      "valid": true,
+                      "value": 10.0,
+                      "reason": "参数在合理范围内"
+                    }
+                  }
+                }
+              },
+              {
+                "排名": 2,
+                "加工方法": "铣齿-磨齿",
+                "加工工艺路线": "选择棒料→车床装夹→粗车外圆→精车外圆→铣齿加工齿形→磨齿精加工",
+                "评分": 91.84,
+                "评分详情": {
+                  "method_score": 40.0,
+                  "method_valid": true,
+                  "param_score": 40.0,
+                  "param_valid_count": 5,
+                  "param_total_count": 5,
+                  "kb_score": 11.84
+                },
+                "来源": "alternative_铣齿-磨齿",
+                "加工参数": {
+                  "主轴转速(rpm)": 3000.0,
+                  "进给速度(mm/min)": 50,
+                  "刀具直径(mm)": 100.0,
+                  "切削深度(mm)": 2.0,
+                  "切削宽度(mm)": 8.0
+                },
+                "方法验证": {
+                  "valid": true,
+                  "recommended": "铣齿-磨齿",
+                  "valid_methods": [
+                    "滚齿-剃齿",
+                    "铣齿-磨齿"
+                  ]
+                },
+                "参数校验": {
+                  "校验通过": true,
+                  "参数校验详情": {
+                    "spindle_speed": {
+                      "valid": true,
+                      "value": 3000.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "feed_rate": {
+                      "valid": true,
+                      "value": 50.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "tool_diameter": {
+                      "valid": true,
+                      "value": 100.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_depth": {
+                      "valid": true,
+                      "value": 2.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_width": {
+                      "valid": true,
+                      "value": 8.0,
+                      "reason": "参数在合理范围内"
+                    }
+                  }
+                }
+              },
+              {
+                "排名": 3,
+                "加工方法": "滚齿-剃齿",
+                "加工工艺路线": "选择棒料→车床装夹→粗车外圆→精车外圆→滚齿加工齿形→剃齿精加工",
+                "评分": 91.84,
+                "评分详情": {
+                  "method_score": 40.0,
+                  "method_valid": true,
+                  "param_score": 40.0,
+                  "param_valid_count": 5,
+                  "param_total_count": 5,
+                  "kb_score": 11.84
+                },
+                "来源": "variant_2",
+                "加工参数": {
+                  "主轴转速(rpm)": 533.33,
+                  "进给速度(mm/min)": 106.67,
+                  "刀具直径(mm)": 96.0,
+                  "切削深度(mm)": 5.0,
+                  "切削宽度(mm)": 10.0
+                },
+                "方法验证": {
+                  "valid": true,
+                  "recommended": "滚齿-剃齿",
+                  "valid_methods": [
+                    "滚齿-剃齿",
+                    "铣齿-磨齿"
+                  ]
+                },
+                "参数校验": {
+                  "校验通过": true,
+                  "参数校验详情": {
+                    "spindle_speed": {
+                      "valid": true,
+                      "value": 533.33,
+                      "reason": "参数在合理范围内"
+                    },
+                    "feed_rate": {
+                      "valid": true,
+                      "value": 106.67,
+                      "reason": "参数在合理范围内"
+                    },
+                    "tool_diameter": {
+                      "valid": true,
+                      "value": 96.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_depth": {
+                      "valid": true,
+                      "value": 5.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_width": {
+                      "valid": true,
+                      "value": 10.0,
+                      "reason": "参数在合理范围内"
+                    }
+                  }
+                }
+              }
+            ],
+            "置信度": {
+              "level": "high",
+              "rank_score": 91.84,
+              "method_valid": true,
+              "parameters_valid": true
+            }
+          }
+        },
+        {
+          "test_case": 1,
+          "feature_type": "外圆",
+          "expected_method": "粗车-半精车-精车",
+          "recommended_method": "粗车-精车",
+          "method_match": false,
+          "tool_match": true,
+          "confidence": {
+            "level": "high",
+            "rank_score": 91.69,
+            "method_valid": true,
+            "parameters_valid": true
+          },
+          "output": {
+            "加工特征": "外圆",
+            "特征参数": {
+              "length": 30.0,
+              "diameter": 124.0,
+              "precision": "IT7",
+              "roughness": 1.6
+            },
+            "加工方法": "粗车-精车",
+            "加工工艺路线": "选择棒料→车床装夹→粗车外圆至直径123.0mm留0.5mm余量→精车外圆至直径123.0mm",
+            "加工参数": {
+              "主轴转速(rpm)": 500.0,
+              "进给速度(mm/min)": 150.0,
+              "刀具直径(mm)": 125.0,
+              "切削深度(mm)": 0.5,
+              "切削宽度(mm)": 10.0
+            },
+            "方法验证": {
+              "valid": true,
+              "recommended": "粗车-精车",
+              "valid_methods": [
+                "粗车-半精车",
+                "粗车-精车"
+              ]
+            },
+            "知识来源": {
+              "向量库(相似案例)": [
+                " → 粗车-半精车: 选择棒料→车床装夹→粗车外圆至直径6.0mm留0.5mm余量→精车外圆至直径6.0mm",
+                " → 粗车-半精车: 选择棒料→车床装夹→粗车外圆至直径80.0mm留0.5mm余量→精车外圆至直径80.0mm",
+                " → 粗车-半精车: 选择棒料→车床装夹→粗车外圆至直径40.0mm留0.5mm余量→精车外圆至直径40.0mm"
+              ],
+              "知识图谱(Neo4j)": {
+                "事实": [
+                  "圆弧面通过粗车-精车工艺加工。",
+                  "粗车-精车加工圆锥面",
+                  "数控车床加工了45号钢的外圆",
+                  "HAS_PART: 数控车床加工了45号钢的外圆",
+                  "HAS_PRECISION: 圆锥面加工至IT7精度",
+                  "IS_PERFORMED_ON: 精车外圆在数控车床上进行。"
+                ]
+              }
+            },
+            "参数校验": {
+              "校验通过": true,
+              "工艺类型": "turning",
+              "参数校验详情": {
+                "spindle_speed": {
+                  "valid": true,
+                  "value": 500.0,
+                  "reason": "参数在合理范围内"
+                },
+                "feed_rate": {
+                  "valid": true,
+                  "value": 150.0,
+                  "reason": "参数在合理范围内"
+                },
+                "tool_diameter": {
+                  "valid": true,
+                  "value": 125.0,
+                  "reason": "参数在合理范围内"
+                },
+                "cutting_depth": {
+                  "valid": true,
+                  "value": 0.5,
+                  "reason": "参数在合理范围内"
+                },
+                "cutting_width": {
+                  "valid": true,
+                  "value": 10.0,
+                  "reason": "参数在合理范围内"
+                }
+              },
+              "修正建议": {}
+            },
+            "候选方案": [
+              {
+                "排名": 1,
+                "加工方法": "粗车-精车",
+                "加工工艺路线": "选择棒料→车床装夹→粗车外圆至直径123.0mm留0.5mm余量→精车外圆至直径123.0mm",
+                "评分": 91.69,
+                "评分详情": {
+                  "method_score": 40.0,
+                  "method_valid": true,
+                  "param_score": 40.0,
+                  "param_valid_count": 5,
+                  "param_total_count": 5,
+                  "kb_score": 11.69
+                },
+                "来源": "primary",
+                "加工参数": {
+                  "主轴转速(rpm)": 500.0,
+                  "进给速度(mm/min)": 150.0,
+                  "刀具直径(mm)": 125.0,
+                  "切削深度(mm)": 0.5,
+                  "切削宽度(mm)": 10.0
+                },
+                "方法验证": {
+                  "valid": true,
+                  "recommended": "粗车-精车",
+                  "valid_methods": [
+                    "粗车-半精车",
+                    "粗车-精车"
+                  ]
+                },
+                "参数校验": {
+                  "校验通过": true,
+                  "参数校验详情": {
+                    "spindle_speed": {
+                      "valid": true,
+                      "value": 500.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "feed_rate": {
+                      "valid": true,
+                      "value": 150.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "tool_diameter": {
+                      "valid": true,
+                      "value": 125.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_depth": {
+                      "valid": true,
+                      "value": 0.5,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_width": {
+                      "valid": true,
+                      "value": 10.0,
+                      "reason": "参数在合理范围内"
+                    }
+                  }
+                }
+              },
+              {
+                "排名": 2,
+                "加工方法": "粗车-半精车",
+                "加工工艺路线": "选择棒料→车床装夹→粗车外圆至直径123.0mm留0.5mm余量→精车外圆至直径123.0mm",
+                "评分": 91.69,
+                "评分详情": {
+                  "method_score": 40.0,
+                  "method_valid": true,
+                  "param_score": 40.0,
+                  "param_valid_count": 5,
+                  "param_total_count": 5,
+                  "kb_score": 11.69
+                },
+                "来源": "alternative_粗车-半精车",
+                "加工参数": {
+                  "主轴转速(rpm)": 400.0,
+                  "进给速度(mm/min)": 100.0,
+                  "刀具直径(mm)": 12.0,
+                  "切削深度(mm)": 0.5,
+                  "切削宽度(mm)": 12.0
+                },
+                "方法验证": {
+                  "valid": true,
+                  "recommended": "粗车-半精车",
+                  "valid_methods": [
+                    "粗车-半精车",
+                    "粗车-精车"
+                  ]
+                },
+                "参数校验": {
+                  "校验通过": true,
+                  "参数校验详情": {
+                    "spindle_speed": {
+                      "valid": true,
+                      "value": 400.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "feed_rate": {
+                      "valid": true,
+                      "value": 100.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "tool_diameter": {
+                      "valid": true,
+                      "value": 12.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_depth": {
+                      "valid": true,
+                      "value": 0.5,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_width": {
+                      "valid": true,
+                      "value": 12.0,
+                      "reason": "参数在合理范围内"
+                    }
+                  }
+                }
+              },
+              {
+                "排名": 3,
+                "加工方法": "粗车-精车",
+                "加工工艺路线": "选择棒料→车床装夹→粗车外圆至直径123.0mm留0.5mm余量→精车外圆至直径123.0mm",
+                "评分": 91.69,
+                "评分详情": {
+                  "method_score": 40.0,
+                  "method_valid": true,
+                  "param_score": 40.0,
+                  "param_valid_count": 5,
+                  "param_total_count": 5,
+                  "kb_score": 11.69
+                },
+                "来源": "variant_2",
+                "加工参数": {
+                  "主轴转速(rpm)": 533.33,
+                  "进给速度(mm/min)": 160.0,
+                  "刀具直径(mm)": 125.0,
+                  "切削深度(mm)": 0.5,
+                  "切削宽度(mm)": 10.0
+                },
+                "方法验证": {
+                  "valid": true,
+                  "recommended": "粗车-精车",
+                  "valid_methods": [
+                    "粗车-半精车",
+                    "粗车-精车"
+                  ]
+                },
+                "参数校验": {
+                  "校验通过": true,
+                  "参数校验详情": {
+                    "spindle_speed": {
+                      "valid": true,
+                      "value": 533.33,
+                      "reason": "参数在合理范围内"
+                    },
+                    "feed_rate": {
+                      "valid": true,
+                      "value": 160.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "tool_diameter": {
+                      "valid": true,
+                      "value": 125.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_depth": {
+                      "valid": true,
+                      "value": 0.5,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_width": {
+                      "valid": true,
+                      "value": 10.0,
+                      "reason": "参数在合理范围内"
+                    }
+                  }
+                }
+              }
+            ],
+            "置信度": {
+              "level": "high",
+              "rank_score": 91.69,
+              "method_valid": true,
+              "parameters_valid": true
+            }
+          }
+        },
+        {
+          "test_case": 2,
+          "feature_type": "通孔",
+          "expected_method": "钻-扩-铰",
+          "recommended_method": "钻-扩-铰",
+          "method_match": true,
+          "tool_match": false,
+          "confidence": {
+            "level": "high",
+            "rank_score": 91.68,
+            "method_valid": true,
+            "parameters_valid": true
+          },
+          "output": {
+            "加工特征": "通孔",
+            "特征参数": {
+              "diameter": 30.0,
+              "depth": 30.0,
+              "precision": "IT7",
+              "roughness": 1.6
+            },
+            "加工方法": "钻-扩-铰",
+            "加工工艺路线": "选择工件→CNC定位→钻头钻孔至直径30.0mm→扩孔钻扩孔至直径30.0mm→铰刀铰孔至IT7精度",
+            "加工参数": {
+              "主轴转速(rpm)": 400.0,
+              "进给速度(mm/min)": 50.0,
+              "刀具直径(mm)": 24.0,
+              "切削深度(mm)": 2.0,
+              "切削宽度(mm)": 2.0
+            },
+            "方法验证": {
+              "valid": true,
+              "recommended": "钻-扩-铰",
+              "valid_methods": [
+                "钻-扩-铰",
+                "钻-镗"
+              ]
+            },
+            "知识来源": {
+              "向量库(相似案例)": [
+                " → 钻-扩-铰: 选择工件→CNC定位→钻头钻孔→扩孔钻扩孔→铰刀铰孔至直径20.0mm",
+                " → 钻-扩-铰: 选择工件→CNC定位→钻头钻孔→扩孔钻扩孔→铰刀铰孔至直径6.0mm",
+                " → 钻-扩-铰: 选择工件→CNC定位→钻头钻孔→扩孔钻扩孔→铰刀铰孔至直径450.0mm"
+              ],
+              "知识图谱(Neo4j)": {
+                "事实": [
+                  "圆弧面通过粗车-精车工艺加工。",
+                  "粗车-精车加工圆锥面",
+                  "钻-扩-铰工艺包括扩孔钻扩孔。",
+                  "IS_PROCESSED_BY: 圆弧面通过粗车-精车工艺加工。",
+                  "HAS_PARAMETER: 数控车床的cutting_depth参数设置为2.0。",
+                  "HAS_PRECISION: 圆锥面加工至IT7精度"
+                ]
+              }
+            },
+            "参数校验": {
+              "校验通过": true,
+              "工艺类型": "drilling",
+              "参数校验详情": {
+                "spindle_speed": {
+                  "valid": true,
+                  "value": 400.0,
+                  "reason": "参数在合理范围内"
+                },
+                "feed_rate": {
+                  "valid": true,
+                  "value": 50.0,
+                  "reason": "参数在合理范围内"
+                },
+                "tool_diameter": {
+                  "valid": true,
+                  "value": 24.0,
+                  "reason": "参数在合理范围内"
+                },
+                "cutting_depth": {
+                  "valid": true,
+                  "value": 2.0,
+                  "reason": "参数在合理范围内"
+                },
+                "cutting_width": {
+                  "valid": true,
+                  "value": 2.0,
+                  "reason": "参数在合理范围内"
+                }
+              },
+              "修正建议": {}
+            },
+            "候选方案": [
+              {
+                "排名": 1,
+                "加工方法": "钻-扩-铰",
+                "加工工艺路线": "选择工件→CNC定位→钻头钻孔至直径30.0mm→扩孔钻扩孔至直径30.0mm→铰刀铰孔至IT7精度",
+                "评分": 91.68,
+                "评分详情": {
+                  "method_score": 40.0,
+                  "method_valid": true,
+                  "param_score": 40.0,
+                  "param_valid_count": 5,
+                  "param_total_count": 5,
+                  "kb_score": 11.68
+                },
+                "来源": "primary",
+                "加工参数": {
+                  "主轴转速(rpm)": 400.0,
+                  "进给速度(mm/min)": 50.0,
+                  "刀具直径(mm)": 24.0,
+                  "切削深度(mm)": 2.0,
+                  "切削宽度(mm)": 2.0
+                },
+                "方法验证": {
+                  "valid": true,
+                  "recommended": "钻-扩-铰",
+                  "valid_methods": [
+                    "钻-扩-铰",
+                    "钻-镗"
+                  ]
+                },
+                "参数校验": {
+                  "校验通过": true,
+                  "参数校验详情": {
+                    "spindle_speed": {
+                      "valid": true,
+                      "value": 400.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "feed_rate": {
+                      "valid": true,
+                      "value": 50.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "tool_diameter": {
+                      "valid": true,
+                      "value": 24.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_depth": {
+                      "valid": true,
+                      "value": 2.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_width": {
+                      "valid": true,
+                      "value": 2.0,
+                      "reason": "参数在合理范围内"
+                    }
+                  }
+                }
+              },
+              {
+                "排名": 2,
+                "加工方法": "钻-镗",
+                "加工工艺路线": "选择工件→CNC定位→钻头钻孔→扩孔钻扩孔→铰刀铰孔至直径30.0mm",
+                "评分": 91.68,
+                "评分详情": {
+                  "method_score": 40.0,
+                  "method_valid": true,
+                  "param_score": 40.0,
+                  "param_valid_count": 5,
+                  "param_total_count": 5,
+                  "kb_score": 11.68
+                },
+                "来源": "alternative_钻-镗",
+                "加工参数": {
+                  "主轴转速(rpm)": 400.0,
+                  "进给速度(mm/min)": 50.0,
+                  "刀具直径(mm)": 24.0,
+                  "切削深度(mm)": 3.0,
+                  "切削宽度(mm)": 2.0
+                },
+                "方法验证": {
+                  "valid": true,
+                  "recommended": "钻-镗",
+                  "valid_methods": [
+                    "钻-扩-铰",
+                    "钻-镗"
+                  ]
+                },
+                "参数校验": {
+                  "校验通过": true,
+                  "参数校验详情": {
+                    "spindle_speed": {
+                      "valid": true,
+                      "value": 400.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "feed_rate": {
+                      "valid": true,
+                      "value": 50.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "tool_diameter": {
+                      "valid": true,
+                      "value": 24.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_depth": {
+                      "valid": true,
+                      "value": 3.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_width": {
+                      "valid": true,
+                      "value": 2.0,
+                      "reason": "参数在合理范围内"
+                    }
+                  }
+                }
+              },
+              {
+                "排名": 3,
+                "加工方法": "钻-扩-铰",
+                "加工工艺路线": "选择工件→CNC定位→钻头钻孔至直径30.0mm→扩孔钻扩孔至直径30.0mm→铰刀铰孔至IT7精度",
+                "评分": 91.68,
+                "评分详情": {
+                  "method_score": 40.0,
+                  "method_valid": true,
+                  "param_score": 40.0,
+                  "param_valid_count": 5,
+                  "param_total_count": 5,
+                  "kb_score": 11.68
+                },
+                "来源": "variant_2",
+                "加工参数": {
+                  "主轴转速(rpm)": 426.67,
+                  "进给速度(mm/min)": 53.33,
+                  "刀具直径(mm)": 24.0,
+                  "切削深度(mm)": 2.0,
+                  "切削宽度(mm)": 2.0
+                },
+                "方法验证": {
+                  "valid": true,
+                  "recommended": "钻-扩-铰",
+                  "valid_methods": [
+                    "钻-扩-铰",
+                    "钻-镗"
+                  ]
+                },
+                "参数校验": {
+                  "校验通过": true,
+                  "参数校验详情": {
+                    "spindle_speed": {
+                      "valid": true,
+                      "value": 426.67,
+                      "reason": "参数在合理范围内"
+                    },
+                    "feed_rate": {
+                      "valid": true,
+                      "value": 53.33,
+                      "reason": "参数在合理范围内"
+                    },
+                    "tool_diameter": {
+                      "valid": true,
+                      "value": 24.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_depth": {
+                      "valid": true,
+                      "value": 2.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_width": {
+                      "valid": true,
+                      "value": 2.0,
+                      "reason": "参数在合理范围内"
+                    }
+                  }
+                }
+              }
+            ],
+            "置信度": {
+              "level": "high",
+              "rank_score": 91.68,
+              "method_valid": true,
+              "parameters_valid": true
+            }
+          }
+        },
+        {
+          "test_case": 3,
+          "feature_type": "端面",
+          "expected_method": "粗车-半精车",
+          "recommended_method": "粗车-精车",
+          "method_match": false,
+          "tool_match": false,
+          "confidence": {
+            "level": "medium",
+            "rank_score": 91.19,
+            "method_valid": false,
+            "parameters_valid": true
+          },
+          "output": {
+            "加工特征": "端面",
+            "特征参数": {
+              "length": 30.0,
+              "diameter": 124.0,
+              "precision": "IT8",
+              "roughness": 3.2
+            },
+            "加工方法": "粗车-精车",
+            "加工工艺路线": "选择棒料→车床装夹→粗车端面留0.5mm余量→精车端面至IT7精度",
+            "加工参数": {
+              "主轴转速(rpm)": 400.0,
+              "进给速度(mm/min)": 100.0,
+              "刀具直径(mm)": 12.0,
+              "切削深度(mm)": 0.5,
+              "切削宽度(mm)": 10.0
+            },
+            "知识来源": {
+              "向量库(相似案例)": [
+                " → 粗车-精车: 选择棒料→车床装夹→粗车圆锥面留0.5mm余量→精车圆锥面至IT7精度",
+                " → 粗车-精车: 选择棒料→车床装夹→粗车圆锥面留0.5mm余量→精车圆锥面至IT7精度",
+                " → 粗车-精车: 选择棒料→车床装夹→粗车圆锥面留0.5mm余量→精车圆锥面至IT7精度"
+              ],
+              "知识图谱(Neo4j)": {
+                "事实": [
+                  "粗车-精车加工圆锥面",
+                  "圆弧面通过粗车-精车工艺加工。",
+                  "圆锥面加工至IT7精度",
+                  "HAS_PRECISION: 圆锥面加工至IT7精度",
+                  "MACHINES: 数控车床用于加工圆弧面。",
+                  "PROCESSES: 粗车-精车加工圆锥面"
+                ]
+              }
+            },
+            "参数校验": {
+              "校验通过": true,
+              "工艺类型": "turning",
+              "参数校验详情": {
+                "spindle_speed": {
+                  "valid": true,
+                  "value": 400.0,
+                  "reason": "参数在合理范围内"
+                },
+                "feed_rate": {
+                  "valid": true,
+                  "value": 100.0,
+                  "reason": "参数在合理范围内"
+                },
+                "tool_diameter": {
+                  "valid": true,
+                  "value": 12.0,
+                  "reason": "参数在合理范围内"
+                },
+                "cutting_depth": {
+                  "valid": true,
+                  "value": 0.5,
+                  "reason": "参数在合理范围内"
+                },
+                "cutting_width": {
+                  "valid": true,
+                  "value": 10.0,
+                  "reason": "参数在合理范围内"
+                }
+              },
+              "修正建议": {}
+            },
+            "候选方案": [
+              {
+                "排名": 1,
+                "加工方法": "粗车-精车",
+                "加工工艺路线": "选择棒料→车床装夹→粗车端面留0.5mm余量→精车端面至IT7精度",
+                "评分": 91.19,
+                "评分详情": {
+                  "method_score": 40.0,
+                  "method_valid": true,
+                  "param_score": 40.0,
+                  "param_valid_count": 5,
+                  "param_total_count": 5,
+                  "kb_score": 11.19
+                },
+                "来源": "primary",
+                "加工参数": {
+                  "主轴转速(rpm)": 400.0,
+                  "进给速度(mm/min)": 100.0,
+                  "刀具直径(mm)": 12.0,
+                  "切削深度(mm)": 0.5,
+                  "切削宽度(mm)": 10.0
+                },
+                "参数校验": {
+                  "校验通过": true,
+                  "参数校验详情": {
+                    "spindle_speed": {
+                      "valid": true,
+                      "value": 400.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "feed_rate": {
+                      "valid": true,
+                      "value": 100.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "tool_diameter": {
+                      "valid": true,
+                      "value": 12.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_depth": {
+                      "valid": true,
+                      "value": 0.5,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_width": {
+                      "valid": true,
+                      "value": 10.0,
+                      "reason": "参数在合理范围内"
+                    }
+                  }
+                }
+              },
+              {
+                "排名": 2,
+                "加工方法": "粗车-精车",
+                "加工工艺路线": "选择棒料→车床装夹→粗车端面留0.5mm余量→精车端面至IT7精度",
+                "评分": 91.19,
+                "评分详情": {
+                  "method_score": 40.0,
+                  "method_valid": true,
+                  "param_score": 40.0,
+                  "param_valid_count": 5,
+                  "param_total_count": 5,
+                  "kb_score": 11.19
+                },
+                "来源": "variant_1",
+                "加工参数": {
+                  "主轴转速(rpm)": 373.33,
+                  "进给速度(mm/min)": 93.33,
+                  "刀具直径(mm)": 12.0,
+                  "切削深度(mm)": 0.5,
+                  "切削宽度(mm)": 10.0
+                },
+                "参数校验": {
+                  "校验通过": true,
+                  "参数校验详情": {
+                    "spindle_speed": {
+                      "valid": true,
+                      "value": 373.33,
+                      "reason": "参数在合理范围内"
+                    },
+                    "feed_rate": {
+                      "valid": true,
+                      "value": 93.33,
+                      "reason": "参数在合理范围内"
+                    },
+                    "tool_diameter": {
+                      "valid": true,
+                      "value": 12.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_depth": {
+                      "valid": true,
+                      "value": 0.5,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_width": {
+                      "valid": true,
+                      "value": 10.0,
+                      "reason": "参数在合理范围内"
+                    }
+                  }
+                }
+              },
+              {
+                "排名": 3,
+                "加工方法": "粗车-精车",
+                "加工工艺路线": "选择棒料→车床装夹→粗车端面留0.5mm余量→精车端面至IT7精度",
+                "评分": 91.19,
+                "评分详情": {
+                  "method_score": 40.0,
+                  "method_valid": true,
+                  "param_score": 40.0,
+                  "param_valid_count": 5,
+                  "param_total_count": 5,
+                  "kb_score": 11.19
+                },
+                "来源": "variant_2",
+                "加工参数": {
+                  "主轴转速(rpm)": 426.67,
+                  "进给速度(mm/min)": 106.67,
+                  "刀具直径(mm)": 12.0,
+                  "切削深度(mm)": 0.5,
+                  "切削宽度(mm)": 10.0
+                },
+                "参数校验": {
+                  "校验通过": true,
+                  "参数校验详情": {
+                    "spindle_speed": {
+                      "valid": true,
+                      "value": 426.67,
+                      "reason": "参数在合理范围内"
+                    },
+                    "feed_rate": {
+                      "valid": true,
+                      "value": 106.67,
+                      "reason": "参数在合理范围内"
+                    },
+                    "tool_diameter": {
+                      "valid": true,
+                      "value": 12.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_depth": {
+                      "valid": true,
+                      "value": 0.5,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_width": {
+                      "valid": true,
+                      "value": 10.0,
+                      "reason": "参数在合理范围内"
+                    }
+                  }
+                }
+              }
+            ],
+            "置信度": {
+              "level": "medium",
+              "rank_score": 91.19,
+              "method_valid": false,
+              "parameters_valid": true
+            }
+          }
+        },
+        {
+          "test_case": 4,
+          "feature_type": "键槽",
+          "expected_method": "粗铣-半精铣",
+          "recommended_method": "粗铣-半精铣",
+          "method_match": true,
+          "tool_match": false,
+          "confidence": {
+            "level": "medium",
+            "rank_score": 91.12,
+            "method_valid": false,
+            "parameters_valid": true
+          },
+          "output": {
+            "加工特征": "键槽",
+            "特征参数": {
+              "length": 25.0,
+              "width": 8.0,
+              "depth": 3.3,
+              "precision": "IT9",
+              "roughness": 6.3
+            },
+            "加工方法": "粗铣-半精铣",
+            "加工工艺路线": "选择工件→CNC定位→使用粗铣刀粗铣键槽至深度3.3mm，切削宽度8.0mm→使用半精铣刀半精铣键槽至深度3.3mm，切削宽度8.0mm",
+            "加工参数": {
+              "主轴转速(rpm)": 500,
+              "进给速度(mm/min)": 74.67,
+              "刀具直径(mm)": 6.0,
+              "切削深度(mm)": 3.3,
+              "切削宽度(mm)": 8.0
+            },
+            "知识来源": {
+              "向量库(相似案例)": [
+                " → 钻-扩-铰: 选择工件→CNC定位→钻头钻孔→扩孔钻扩孔→铰刀铰孔至直径20.0mm",
+                " → 钻-扩-铰: 选择工件→CNC定位→钻头钻孔→扩孔钻扩孔→铰刀铰孔至直径6.0mm",
+                " → 滚齿-剃齿: 选择棒料→车床装夹→粗车外圆→精车外圆→滚齿加工齿形→剃齿精加工"
+              ],
+              "知识图谱(Neo4j)": {
+                "事实": [
+                  "圆弧面通过粗车-精车工艺加工。",
+                  "粗车-精车加工圆锥面",
+                  "钻-扩-铰工艺包括铰刀铰孔。",
+                  "HAS_PARAMETER: 数控车床的cutting_depth参数设置为2.0。",
+                  "HAS_PARAMETER: 数控车床的spindle_speed参数设置为1200.0。",
+                  "HAS_PRECISION: 圆锥面加工至IT7精度"
+                ]
+              }
+            },
+            "参数校验": {
+              "校验通过": true,
+              "工艺类型": "milling",
+              "参数校验详情": {
+                "spindle_speed": {
+                  "valid": true,
+                  "value": 500.0,
+                  "reason": "参数在合理范围内"
+                },
+                "feed_rate": {
+                  "valid": true,
+                  "value": 74.67,
+                  "reason": "参数在合理范围内"
+                },
+                "tool_diameter": {
+                  "valid": true,
+                  "value": 6.0,
+                  "reason": "参数在合理范围内"
+                },
+                "cutting_depth": {
+                  "valid": true,
+                  "value": 3.3,
+                  "reason": "参数在合理范围内"
+                },
+                "cutting_width": {
+                  "valid": true,
+                  "value": 8.0,
+                  "reason": "参数在合理范围内"
+                }
+              },
+              "修正建议": {}
+            },
+            "候选方案": [
+              {
+                "排名": 1,
+                "加工方法": "粗铣-半精铣",
+                "加工工艺路线": "选择工件→CNC定位→使用粗铣刀粗铣键槽至深度3.3mm，切削宽度8.0mm→使用半精铣刀半精铣键槽至深度3.3mm，切削宽度8.0mm",
+                "评分": 91.12,
+                "评分详情": {
+                  "method_score": 40.0,
+                  "method_valid": true,
+                  "param_score": 40.0,
+                  "param_valid_count": 5,
+                  "param_total_count": 5,
+                  "kb_score": 11.12
+                },
+                "来源": "variant_1",
+                "加工参数": {
+                  "主轴转速(rpm)": 500,
+                  "进给速度(mm/min)": 74.67,
+                  "刀具直径(mm)": 6.0,
+                  "切削深度(mm)": 3.3,
+                  "切削宽度(mm)": 8.0
+                },
+                "参数校验": {
+                  "校验通过": true,
+                  "参数校验详情": {
+                    "spindle_speed": {
+                      "valid": true,
+                      "value": 500.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "feed_rate": {
+                      "valid": true,
+                      "value": 74.67,
+                      "reason": "参数在合理范围内"
+                    },
+                    "tool_diameter": {
+                      "valid": true,
+                      "value": 6.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_depth": {
+                      "valid": true,
+                      "value": 3.3,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_width": {
+                      "valid": true,
+                      "value": 8.0,
+                      "reason": "参数在合理范围内"
+                    }
+                  }
+                }
+              },
+              {
+                "排名": 2,
+                "加工方法": "粗铣-半精铣",
+                "加工工艺路线": "选择工件→CNC定位→使用粗铣刀粗铣键槽至深度3.3mm，切削宽度8.0mm→使用半精铣刀半精铣键槽至深度3.3mm，切削宽度8.0mm",
+                "评分": 91.12,
+                "评分详情": {
+                  "method_score": 40.0,
+                  "method_valid": true,
+                  "param_score": 40.0,
+                  "param_valid_count": 5,
+                  "param_total_count": 5,
+                  "kb_score": 11.12
+                },
+                "来源": "variant_2",
+                "加工参数": {
+                  "主轴转速(rpm)": 500,
+                  "进给速度(mm/min)": 85.33,
+                  "刀具直径(mm)": 6.0,
+                  "切削深度(mm)": 3.3,
+                  "切削宽度(mm)": 8.0
+                },
+                "参数校验": {
+                  "校验通过": true,
+                  "参数校验详情": {
+                    "spindle_speed": {
+                      "valid": true,
+                      "value": 500.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "feed_rate": {
+                      "valid": true,
+                      "value": 85.33,
+                      "reason": "参数在合理范围内"
+                    },
+                    "tool_diameter": {
+                      "valid": true,
+                      "value": 6.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_depth": {
+                      "valid": true,
+                      "value": 3.3,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_width": {
+                      "valid": true,
+                      "value": 8.0,
+                      "reason": "参数在合理范围内"
+                    }
+                  }
+                }
+              },
+              {
+                "排名": 3,
+                "加工方法": "粗铣-半精铣",
+                "加工工艺路线": "选择工件→CNC定位→使用粗铣刀粗铣键槽至深度3.3mm，切削宽度8.0mm→使用半精铣刀半精铣键槽至深度3.3mm，切削宽度8.0mm",
+                "评分": 83.12,
+                "评分详情": {
+                  "method_score": 40.0,
+                  "method_valid": true,
+                  "param_score": 32.0,
+                  "param_valid_count": 4,
+                  "param_total_count": 5,
+                  "kb_score": 11.12
+                },
+                "来源": "primary",
+                "加工参数": {
+                  "主轴转速(rpm)": 500,
+                  "进给速度(mm/min)": 80.0,
+                  "刀具直径(mm)": 6.0,
+                  "切削深度(mm)": 3.3,
+                  "切削宽度(mm)": 8.0
+                },
+                "参数校验": {
+                  "校验通过": false,
+                  "参数校验详情": {
+                    "spindle_speed": {
+                      "valid": false,
+                      "value": 400.0,
+                      "reason": "主轴转速(rpm)=400.00低于最小值500"
+                    },
+                    "feed_rate": {
+                      "valid": true,
+                      "value": 80.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "tool_diameter": {
+                      "valid": true,
+                      "value": 6.0,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_depth": {
+                      "valid": true,
+                      "value": 3.3,
+                      "reason": "参数在合理范围内"
+                    },
+                    "cutting_width": {
+                      "valid": true,
+                      "value": 8.0,
+                      "reason": "参数在合理范围内"
+                    }
+                  }
+                }
+              }
+            ],
+            "置信度": {
+              "level": "medium",
+              "rank_score": 91.12,
+              "method_valid": false,
+              "parameters_valid": true
+            }
+          }
+        }
+      ]
+    }
+  }
+}

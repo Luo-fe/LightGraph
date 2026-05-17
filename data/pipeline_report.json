@@ -1,0 +1,616 @@
+{
+  "pipeline_state": {
+    "summary": {
+      "total_steps": 8,
+      "success": 6,
+      "failed": 2,
+      "skipped": 0,
+      "pending_or_running": 0,
+      "pipeline_start": "2026-05-17T02:28:10.060037+00:00",
+      "pipeline_end": "2026-05-17T04:04:05.240011+00:00"
+    },
+    "steps": {
+      "clear_neo4j": {
+        "name": "clear_neo4j",
+        "status": "success",
+        "start_time": "2026-05-17T02:28:10.060088+00:00",
+        "end_time": "2026-05-17T02:28:12.150463+00:00",
+        "duration_seconds": 2.090375,
+        "result_summary": "清空结果: True",
+        "error_info": ""
+      },
+      "test_glm_api": {
+        "name": "test_glm_api",
+        "status": "success",
+        "start_time": "2026-05-17T02:28:12.150521+00:00",
+        "end_time": "2026-05-17T02:28:14.458880+00:00",
+        "duration_seconds": 2.308359,
+        "result_summary": "GLM API连接成功",
+        "error_info": ""
+      },
+      "data_pipeline": {
+        "name": "data_pipeline",
+        "status": "success",
+        "start_time": "2026-05-17T02:28:14.458988+00:00",
+        "end_time": "2026-05-17T03:08:41.491071+00:00",
+        "duration_seconds": 2427.032083,
+        "result_summary": "原始20条->清洗20条->结构化20条->三元组100条",
+        "error_info": ""
+      },
+      "tmcad_knowledge_build": {
+        "name": "tmcad_knowledge_build",
+        "status": "success",
+        "start_time": "2026-05-17T03:08:41.491129+00:00",
+        "end_time": "2026-05-17T03:57:42.649247+00:00",
+        "duration_seconds": 2941.158118,
+        "result_summary": "扫描15个零件,生成47条案例",
+        "error_info": ""
+      },
+      "validation": {
+        "name": "validation",
+        "status": "success",
+        "start_time": "2026-05-17T03:57:42.649318+00:00",
+        "end_time": "2026-05-17T03:58:55.525749+00:00",
+        "duration_seconds": 72.876431,
+        "result_summary": "MDPM=70.00%, MDMT=0.1",
+        "error_info": ""
+      },
+      "typical_part_validation": {
+        "name": "typical_part_validation",
+        "status": "failed",
+        "start_time": "2026-05-17T03:58:55.525812+00:00",
+        "end_time": "2026-05-17T03:59:03.634958+00:00",
+        "duration_seconds": 8.109146,
+        "result_summary": "",
+        "error_info": "list indices must be integers or slices, not str"
+      },
+      "end_to_end": {
+        "name": "end_to_end",
+        "status": "failed",
+        "start_time": "2026-05-17T03:59:03.635159+00:00",
+        "end_time": "2026-05-17T03:59:07.091762+00:00",
+        "duration_seconds": 3.456603,
+        "result_summary": "",
+        "error_info": "Object of type MachiningFeature is not JSON serializable"
+      },
+      "tmcad_end_to_end": {
+        "name": "tmcad_end_to_end",
+        "status": "success",
+        "start_time": "2026-05-17T03:59:07.091828+00:00",
+        "end_time": "2026-05-17T04:04:05.239977+00:00",
+        "duration_seconds": 298.148149,
+        "result_summary": "共34条推荐结果",
+        "error_info": ""
+      }
+    }
+  },
+  "step_results": {
+    "data_pipeline": {
+      "raw_count": 20,
+      "cleaned_count": 20,
+      "structured_count": 20,
+      "training_count": 20,
+      "triple_count": 100,
+      "vector_count": 20,
+      "kg_count": 20
+    },
+    "tmcad_knowledge_build": {
+      "parts_scanned": 15,
+      "cases_generated": 47,
+      "vector_count": 47,
+      "kg_count": 47
+    },
+    "validation": {
+      "total_cases": 10,
+      "mdpm": 0.7,
+      "mdmt": 0.1,
+      "results": [
+        {
+          "test_case": 0,
+          "feature_type": "通孔",
+          "expected_method": "钻-扩-铰",
+          "recommended_method": "钻-扩-铰",
+          "method_match": true,
+          "output": {
+            "加工特征": "通孔",
+            "特征参数": {
+              "diameter": 10.0,
+              "depth": 25.0,
+              "precision": "IT7",
+              "roughness": 1.6
+            },
+            "加工方法": "钻-扩-铰",
+            "加工工艺路线": "选择工件→CNC定位→钻头钻孔至直径10.0mm→扩孔钻扩孔至直径20.0mm→铰刀铰孔至直径10.0mm",
+            "加工参数": {
+              "主轴转速(rpm)": 400.0,
+              "进给速度(mm/min)": 100.0,
+              "刀具直径(mm)": 8.0,
+              "切削深度(mm)": 2.0,
+              "切削宽度(mm)": 5.0
+            },
+            "方法验证": {
+              "valid": true,
+              "recommended": "钻-扩-铰",
+              "valid_methods": [
+                "钻-扩-铰",
+                "钻-镗"
+              ]
+            },
+            "知识来源": {
+              "向量库(相似案例)": [
+                " → 钻-扩-铰: 选择工件→CNC定位→钻头钻孔→扩孔钻扩孔→铰刀铰孔至直径20.0mm",
+                " → 钻-扩-铰: 选择工件→CNC定位→钻头钻孔→扩孔钻扩孔→铰刀铰孔至直径6.0mm",
+                " → 钻-扩-铰: 选择工件→CNC定位→钻头钻孔→扩孔钻扩孔→铰刀铰孔至直径450.0mm"
+              ],
+              "知识图谱(Neo4j)": {
+                "事实": [
+                  "圆弧面通过粗车-精车工艺加工。",
+                  "粗车-精车加工圆锥面",
+                  "钻-扩-铰工艺包括扩孔钻扩孔。",
+                  "IS_PROCESSED_BY: 圆弧面通过粗车-精车工艺加工。",
+                  "HAS_PARAMETER: 数控车床的cutting_depth参数设置为2.0。",
+                  "HAS_PRECISION: 圆锥面加工至IT7精度"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "test_case": 1,
+          "feature_type": "四边形腔",
+          "expected_method": "粗铣-半精铣",
+          "recommended_method": "粗铣-半精铣",
+          "method_match": true,
+          "output": {
+            "加工特征": "四边形腔",
+            "特征参数": {
+              "length": 100.0,
+              "width": 80.0,
+              "depth": 40.0,
+              "precision": "IT8",
+              "roughness": 6.3
+            },
+            "加工方法": "粗铣-半精铣",
+            "加工工艺路线": "选择铣床→装夹工件→设置初始对刀参数→粗铣四边形腔至设计深度，进给速度为30mm/min，切削深度为4.0mm，切削宽度为8.0mm→半精铣四边形腔至精度IT8，进给速度为60mm/min，切削深度为0.5mm，切削宽度为6.0mm",
+            "加工参数": {
+              "主轴转速(rpm)": 500,
+              "进给速度(mm/min)": 50,
+              "刀具直径(mm)": 10.0,
+              "切削深度(mm)": 4.0,
+              "切削宽度(mm)": 8.0
+            },
+            "方法验证": {
+              "valid": true,
+              "recommended": "粗铣-半精铣",
+              "valid_methods": [
+                "粗铣-半精铣",
+                "粗铣-精铣"
+              ]
+            },
+            "知识来源": {
+              "向量库(相似案例)": [
+                " → 钻-扩-铰: 选择工件→CNC定位→钻头钻孔→扩孔钻扩孔→铰刀铰孔至直径6.0mm",
+                " → 粗车-半精车: 选择棒料→车床装夹→粗车外圆至直径6.0mm留0.5mm余量→精车外圆至直径6.0mm",
+                " → 粗车-精车: 选择棒料→车床装夹→粗车圆锥面留0.5mm余量→精车圆锥面至IT7精度"
+              ],
+              "知识图谱(Neo4j)": {
+                "事实": [
+                  "滚齿加工齿形在数控车床上进行。",
+                  "圆锥面加工至IT7精度",
+                  "圆弧面通过粗车-精车工艺加工。",
+                  "IS_PERFORMED_ON: 滚齿加工齿形在数控车床上进行。",
+                  "HAS_PRECISION: 圆锥面加工至IT7精度",
+                  "HAS_PARAMETER: 数控车床的cutting_depth参数设置为2.0。"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "test_case": 2,
+          "feature_type": "外圆",
+          "expected_method": "粗车-精车",
+          "recommended_method": "粗车-精车",
+          "method_match": true,
+          "output": {
+            "加工特征": "外圆",
+            "特征参数": {
+              "length": 80.0,
+              "diameter": 50.0,
+              "precision": "IT6",
+              "roughness": 0.8
+            },
+            "加工方法": "粗车-精车",
+            "加工工艺路线": "选择棒料→车床装夹→粗车外圆至直径49.5mm留0.5mm余量→精车外圆至直径50.0mm",
+            "加工参数": {
+              "主轴转速(rpm)": 400.0,
+              "进给速度(mm/min)": 100.0,
+              "刀具直径(mm)": 10.0,
+              "切削深度(mm)": 0.5,
+              "切削宽度(mm)": 10.0
+            },
+            "方法验证": {
+              "valid": true,
+              "recommended": "粗车-精车",
+              "valid_methods": [
+                "粗车-半精车",
+                "粗车-精车"
+              ]
+            },
+            "知识来源": {
+              "向量库(相似案例)": [
+                " → 粗车-半精车: 选择棒料→车床装夹→粗车外圆至直径6.0mm留0.5mm余量→精车外圆至直径6.0mm",
+                " → 粗车-半精车: 选择棒料→车床装夹→粗车外圆至直径80.0mm留0.5mm余量→精车外圆至直径80.0mm",
+                " → 粗车-半精车: 选择棒料→车床装夹→粗车外圆至直径40.0mm留0.5mm余量→精车外圆至直径40.0mm"
+              ],
+              "知识图谱(Neo4j)": {
+                "事实": [
+                  "圆弧面通过粗车-精车工艺加工。",
+                  "粗车-精车加工圆锥面",
+                  "数控车床加工了45号钢的外圆",
+                  "HAS_PART: 数控车床加工了45号钢的外圆",
+                  "HAS_PRECISION: 圆锥面加工至IT7精度",
+                  "IS_PERFORMED_ON: 精车外圆在数控车床上进行。"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "test_case": 3,
+          "feature_type": "螺纹",
+          "expected_method": "车螺纹",
+          "recommended_method": "粗车-精车",
+          "method_match": false,
+          "output": {
+            "加工特征": "螺纹",
+            "特征参数": {
+              "length": 30.0,
+              "diameter": 12.0,
+              "precision": "IT7",
+              "roughness": 3.2
+            },
+            "加工方法": "粗车-精车",
+            "加工工艺路线": "选择棒料→车床装夹→车螺纹底径→精车螺纹至标准",
+            "加工参数": {
+              "主轴转速(rpm)": 400.0,
+              "进给速度(mm/min)": 100.0,
+              "刀具直径(mm)": 12.0,
+              "切削深度(mm)": 0.5,
+              "切削宽度(mm)": 1.0
+            },
+            "方法验证": {
+              "valid": false,
+              "recommended": "粗车-精车",
+              "valid_methods": [
+                "车螺纹",
+                "铣螺纹"
+              ]
+            },
+            "知识来源": {
+              "向量库(相似案例)": [
+                " → 车螺纹: 选择棒料→车床装夹→车螺纹底径→精车螺纹至标准",
+                " → 车螺纹: 选择棒料→车床装夹→车螺纹底径→精车螺纹至标准",
+                " → 车螺纹: 选择棒料→车床装夹→车螺纹底径→精车螺纹至标准"
+              ],
+              "知识图谱(Neo4j)": {
+                "事实": [
+                  "车螺纹用于加工棒料。",
+                  "螺纹底径在车床上进行加工。",
+                  "数控车床用于车螺纹底径→精车螺纹至标准的加工过程。",
+                  "MAKES_OF: 车螺纹用于加工棒料。",
+                  "IS_PROCESSED_BY: 螺纹底径在车床上进行加工。",
+                  "PERFORMED_ON: 数控车床用于车螺纹底径→精车螺纹至标准的加工过程。"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "test_case": 4,
+          "feature_type": "齿形",
+          "expected_method": "滚齿",
+          "recommended_method": "滚齿-剃齿",
+          "method_match": true,
+          "output": {
+            "加工特征": "齿形",
+            "特征参数": {
+              "length": 30.0,
+              "diameter": 80.0,
+              "precision": "IT6",
+              "roughness": 0.8
+            },
+            "加工方法": "滚齿-剃齿",
+            "加工工艺路线": "选择棒料→车床装夹→粗车外圆→精车外圆→滚齿加工齿形→剃齿精加工",
+            "加工参数": {
+              "主轴转速(rpm)": 400.0,
+              "进给速度(mm/min)": 50,
+              "刀具直径(mm)": 80.0,
+              "切削深度(mm)": 2.0,
+              "切削宽度(mm)": 10.0
+            },
+            "方法验证": {
+              "valid": true,
+              "recommended": "滚齿-剃齿",
+              "valid_methods": [
+                "滚齿-剃齿",
+                "铣齿-磨齿"
+              ]
+            },
+            "知识来源": {
+              "向量库(相似案例)": [
+                " → 滚齿-剃齿: 选择棒料→车床装夹→粗车外圆→精车外圆→滚齿加工齿形→剃齿精加工",
+                " → 滚齿-剃齿: 选择棒料→车床装夹→粗车外圆→精车外圆→滚齿加工齿形→剃齿精加工",
+                " → 滚齿-剃齿: 选择棒料→车床装夹→粗车外圆→精车外圆→滚齿加工齿形→剃齿精加工"
+              ],
+              "知识图谱(Neo4j)": {
+                "事实": [
+                  "滚齿加工齿形在数控车床上进行。",
+                  "粗车-精车加工圆锥面",
+                  "圆弧面通过粗车-精车工艺加工。",
+                  "IS_PERFORMED_ON: 滚齿加工齿形在数控车床上进行。",
+                  "HAS_PRECISION: 圆锥面加工至IT7精度",
+                  "IS_PERFORMED_ON: 剃齿精加工在数控车床上进行。"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "test_case": 5,
+          "feature_type": "圆锥面",
+          "expected_method": "粗车-精车",
+          "recommended_method": "粗车-精车",
+          "method_match": true,
+          "output": {
+            "加工特征": "圆锥面",
+            "特征参数": {
+              "length": 30.0,
+              "diameter": 40.0,
+              "precision": "IT7",
+              "roughness": 1.6
+            },
+            "加工方法": "粗车-精车",
+            "加工工艺路线": "选择棒料→车床装夹→粗车圆锥面留0.5mm余量→精车圆锥面至IT7精度",
+            "加工参数": {
+              "主轴转速(rpm)": 500.0,
+              "进给速度(mm/min)": 50,
+              "刀具直径(mm)": 40.0,
+              "切削深度(mm)": 0.5,
+              "切削宽度(mm)": 2.0
+            },
+            "方法验证": {
+              "valid": true,
+              "recommended": "粗车-精车",
+              "valid_methods": [
+                "粗车-精车",
+                "粗车-半精车-精车"
+              ]
+            },
+            "知识来源": {
+              "向量库(相似案例)": [
+                " → 粗车-精车: 选择棒料→车床装夹→粗车圆锥面留0.5mm余量→精车圆锥面至IT7精度",
+                " → 粗车-精车: 选择棒料→车床装夹→粗车圆锥面留0.5mm余量→精车圆锥面至IT7精度",
+                " → 粗车-精车: 选择棒料→车床装夹→粗车圆锥面留0.5mm余量→精车圆锥面至IT7精度"
+              ],
+              "知识图谱(Neo4j)": {
+                "事实": [
+                  "圆锥面加工至IT7精度",
+                  "粗车-精车加工圆锥面",
+                  "粗车-精车加工应用于圆锥面。",
+                  "HAS_PRECISION: 圆锥面加工至IT7精度",
+                  "PROCESSES: 粗车-精车加工圆锥面",
+                  "APPLIED_TO: 粗车-精车加工应用于圆锥面。"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "test_case": 6,
+          "feature_type": "盲孔",
+          "expected_method": "钻-镗",
+          "recommended_method": "钻-扩-铰",
+          "method_match": false,
+          "output": {
+            "加工特征": "盲孔",
+            "特征参数": {
+              "diameter": 8.0,
+              "depth": 20.0,
+              "precision": "IT8",
+              "roughness": 3.2
+            },
+            "加工方法": "钻-扩-铰",
+            "加工工艺路线": "选择工件→CNC定位→钻头钻孔至直径8.0mm→扩孔钻扩孔至直径10.0mm→铰刀铰孔至直径8.0mm，精度IT8，表面粗糙度3.2μm",
+            "加工参数": {
+              "主轴转速(rpm)": 500.0,
+              "进给速度(mm/min)": 50.0,
+              "刀具直径(mm)": 8.0,
+              "切削深度(mm)": 2.0,
+              "切削宽度(mm)": 0.5
+            },
+            "方法验证": {
+              "valid": true,
+              "recommended": "钻-扩-铰",
+              "valid_methods": [
+                "钻-扩-铰",
+                "钻-镗"
+              ]
+            },
+            "知识来源": {
+              "向量库(相似案例)": [
+                " → 钻-扩-铰: 选择工件→CNC定位→钻头钻孔→镗刀镗孔至直径22.0mm",
+                " → 钻-扩-铰: 选择工件→CNC定位→钻头钻孔→镗刀镗孔至直径40.0mm",
+                " → 钻-扩-铰: 选择工件→CNC定位→钻头钻孔→镗刀镗孔至直径80.0mm"
+              ],
+              "知识图谱(Neo4j)": {
+                "事实": [
+                  "钻-扩-铰工艺包括扩孔钻扩孔。",
+                  "粗车-精车加工圆锥面",
+                  "钻-扩-铰工艺包括铰刀铰孔。",
+                  "HAS_PARAMETER: 数控车床的tool_diameter参数设置为52.0。",
+                  "HAS_PARAMETER: 数控车床的cutting_depth参数设置为2.0。",
+                  "HAS_PRECISION: 圆锥面加工至IT7精度"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "test_case": 7,
+          "feature_type": "圆柱面",
+          "expected_method": "粗车-精车",
+          "recommended_method": "粗车-精车",
+          "method_match": true,
+          "output": {
+            "加工特征": "圆柱面",
+            "特征参数": {
+              "length": 100.0,
+              "diameter": 30.0,
+              "precision": "IT7",
+              "roughness": 1.6
+            },
+            "加工方法": "粗车-精车",
+            "加工工艺路线": "选择棒料→车床装夹→粗车圆柱面至直径29.5mm留0.5mm余量→精车至直径30.0mm",
+            "加工参数": {
+              "主轴转速(rpm)": 400.0,
+              "进给速度(mm/min)": 100.0,
+              "刀具直径(mm)": 30.0,
+              "切削深度(mm)": 0.5,
+              "切削宽度(mm)": 5.0
+            },
+            "方法验证": {
+              "valid": true,
+              "recommended": "粗车-精车",
+              "valid_methods": [
+                "粗车-精车",
+                "粗车-半精车-精车"
+              ]
+            },
+            "知识来源": {
+              "向量库(相似案例)": [
+                " → 粗车-精车: 选择棒料→车床装夹→粗车圆锥面留0.5mm余量→精车圆锥面至IT7精度",
+                " → 粗车-精车: 选择棒料→车床装夹→粗车圆柱面至直径20.0mm留0.5mm余量→精车至直径20.0mm",
+                " → 粗车-精车: 选择棒料→车床装夹→粗车圆锥面留0.5mm余量→精车圆锥面至IT7精度"
+              ],
+              "知识图谱(Neo4j)": {
+                "事实": [
+                  "粗车-精车加工圆锥面",
+                  "圆弧面通过粗车-精车工艺加工。",
+                  "圆柱面是在数控车床上加工的。",
+                  "PROCESSED_ON: 圆柱面是在数控车床上加工的。",
+                  "HAS_PRECISION: 圆锥面加工至IT7精度",
+                  "PROCESSES: 粗车-精车加工圆锥面"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "test_case": 8,
+          "feature_type": "方形槽",
+          "expected_method": "粗铣-精铣",
+          "recommended_method": "粗铣-半精铣",
+          "method_match": false,
+          "output": {
+            "加工特征": "方形槽",
+            "特征参数": {
+              "length": 60.0,
+              "width": 30.0,
+              "depth": 15.0,
+              "precision": "IT7",
+              "roughness": 3.2
+            },
+            "加工方法": "粗铣-半精铣",
+            "加工工艺路线": "选择工件→CNC定位→使用直径与槽宽匹配的铣刀→粗铣方形槽至设计深度，进给速度30mm/min，切削深度3.0mm，切削宽度30.0mm→半精铣方形槽至设计深度，进给速度60mm/min，切削深度1.5mm，切削宽度30.0mm",
+            "加工参数": {
+              "主轴转速(rpm)": 500,
+              "进给速度(mm/min)": 50,
+              "刀具直径(mm)": 24.0,
+              "切削深度(mm)": 3.0,
+              "切削宽度(mm)": 30.0
+            },
+            "方法验证": {
+              "valid": true,
+              "recommended": "粗铣-半精铣",
+              "valid_methods": [
+                "粗铣-半精铣",
+                "粗铣-精铣"
+              ]
+            },
+            "知识来源": {
+              "向量库(相似案例)": [
+                " → 粗车-精车: 选择棒料→车床装夹→粗车圆锥面留0.5mm余量→精车圆锥面至IT7精度",
+                " → 钻-扩-铰: 选择工件→CNC定位→钻头钻孔→扩孔钻扩孔→铰刀铰孔至直径20.0mm",
+                " → 钻-扩-铰: 选择工件→CNC定位→钻头钻孔→扩孔钻扩孔→铰刀铰孔至直径6.0mm"
+              ],
+              "知识图谱(Neo4j)": {
+                "事实": [
+                  "粗车-精车加工方法使用数控车床。",
+                  "粗车-精车加工圆锥面",
+                  "数控车床执行粗车-精车工艺。",
+                  "USES: 粗车-精车加工方法使用数控车床。",
+                  "HAS_PRECISION: 圆锥面加工至IT7精度",
+                  "HAS_PARAMETER: 数控车床的cutting_depth参数设置为2.0。"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "test_case": 9,
+          "feature_type": "圆曲线",
+          "expected_method": "粗车-精车",
+          "recommended_method": "粗车-精车",
+          "method_match": true,
+          "output": {
+            "加工特征": "圆曲线",
+            "特征参数": {
+              "length": 50.0,
+              "diameter": 25.0,
+              "precision": "IT7",
+              "roughness": 1.6
+            },
+            "加工方法": "粗车-精车",
+            "加工工艺路线": "选择棒料→车床装夹→粗车圆弧面至IT7精度→精车圆弧面至IT7精度",
+            "加工参数": {
+              "主轴转速(rpm)": 800.0,
+              "进给速度(mm/min)": 100.0,
+              "刀具直径(mm)": 10.0,
+              "切削深度(mm)": 1.5,
+              "切削宽度(mm)": 5.0
+            },
+            "方法验证": {
+              "valid": true,
+              "recommended": "粗车-精车",
+              "valid_methods": [
+                "粗车-精车",
+                "粗铣-精铣"
+              ]
+            },
+            "知识来源": {
+              "向量库(相似案例)": [
+                " → 粗车-精车: 选择棒料→车床装夹→粗车圆弧面→精车圆弧面至IT7精度",
+                " → 粗车-精车: 选择棒料→车床装夹→粗车圆弧面→精车圆弧面至IT7精度",
+                " → 粗车-精车: 选择棒料→车床装夹→粗车圆弧面→精车圆弧面至IT7精度"
+              ],
+              "知识图谱(Neo4j)": {
+                "事实": [
+                  "圆弧面通过粗车-精车工艺加工。",
+                  "粗车-精车加工圆锥面",
+                  "圆弧面加工至IT7精度。",
+                  "PROCESSES: 粗车-精车加工圆锥面",
+                  "MACHINES: 数控车床用于加工圆弧面。",
+                  "HAS_PRECISION: 圆锥面加工至IT7精度"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "tmcad_end_to_end": {
+      "result_count": 34
+    }
+  }
+}
