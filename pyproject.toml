@@ -1,7 +1,7 @@
 [project]
 name = "cad-knowledge-graph"
 description = "CAD工艺知识图谱与工艺路线推荐系统"
-version = "0.1.0"
+version = "0.2.0"
 requires-python = ">=3.10,<4"
 dependencies = [
     "graphiti-core>=0.29.0",
@@ -13,6 +13,7 @@ dependencies = [
     "tenacity>=9.0.0",
     "faiss-cpu>=1.7.0",
     "sentence-transformers>=3.2.1",
+    "jieba>=0.42.1",
 ]
 
 [project.optional-dependencies]

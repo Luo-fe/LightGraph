@@ -49,6 +49,41 @@ CATEGORY_FEATURE_MAP = {
     },
 }
 
+TOLERANCE_ENTITY_PATTERNS = [
+    (r'GEOMETRIC_TOLERANCE\s*\(', 'geometric_tolerance'),
+    (r'PLUS_MINUS_TOLERANCE\s*\(', 'plus_minus_tolerance'),
+    (r'TOLERANCE_VALUE\s*\(', 'tolerance_value'),
+    (r'DIMENSIONAL_TOLERANCE\s*\(', 'dimensional_tolerance'),
+    (r'FLATNESS_TOLERANCE\s*\(', 'flatness_tolerance'),
+    (r'CYLINDRICITY_TOLERANCE\s*\(', 'cylindricity_tolerance'),
+    (r'ROUNDNESS_TOLERANCE\s*\(', 'roundness_tolerance'),
+    (r'STRAIGHTNESS_TOLERANCE\s*\(', 'straightness_tolerance'),
+    (r'POSITION_TOLERANCE\s*\(', 'position_tolerance'),
+    (r'PERPENDICULARITY_TOLERANCE\s*\(', 'perpendicularity_tolerance'),
+    (r'PARALLELISM_TOLERANCE\s*\(', 'parallelism_tolerance'),
+    (r'ANGULARITY_TOLERANCE\s*\(', 'angularity_tolerance'),
+    (r'CIRCULAR_RUNOUT_TOLERANCE\s*\(', 'circular_runout_tolerance'),
+    (r'TOTAL_RUNOUT_TOLERANCE\s*\(', 'total_runout_tolerance'),
+]
+
+SURFACE_FINISH_PATTERNS = [
+    (r'SURFACE_ROUGHNESS\s*\(', 'surface_roughness'),
+    (r'SURFACE_TEXTURE\s*\(', 'surface_texture'),
+    (r'MEASURE_REPRESENTATION_ITEM\s*\(\s*\'[^\']*RA[^\']*\'', 'ra_measure'),
+    (r'MEASURE_REPRESENTATION_ITEM\s*\(\s*\'[^\']*ROUGHNESS[^\']*\'', 'roughness_measure'),
+]
+
+MATERIAL_SIZE_RULES = {
+    '45号钢': {'diameter_range': (5, 150), 'length_range': (10, 600)},
+    '40Cr钢': {'diameter_range': (15, 250), 'length_range': (10, 300)},
+    'Q235钢': {'diameter_range': (30, 500), 'length_range': (5, 100)},
+    '20CrMnTi钢': {'diameter_range': (20, 200), 'length_range': (10, 150)},
+    'HT200铸铁': {'diameter_range': (50, 600), 'length_range': (10, 200)},
+    '铝合金6061': {'diameter_range': (5, 200), 'length_range': (10, 400)},
+}
+
+FEATURE_CONFIDENCE_THRESHOLD = 0.3
+
 
 class STEPParser:
     def __init__(self, dataset_path: Path | None = None):
@@ -81,8 +116,19 @@ class STEPParser:
         dimensions = self._extract_dimensions(content)
         info.update(dimensions)
 
+        info['tolerance_info'] = self._extract_tolerance_info(content)
+        info['surface_finish'] = self._extract_surface_finish(content)
+
+        classified = self._classify_part_type(info)
+        info['classified_category'] = classified
+        if classified and classified != info.get('category', ''):
+            info['category_cn'] = PART_CATEGORY_MAP.get(classified, info.get('category_cn', ''))
+
+        info['estimated_material'] = self._estimate_material(info)
+
         info['summary'] = self._generate_summary(info)
         info['inferred_features'] = self._infer_features(info)
+        info['feature_confidence'] = self._compute_feature_confidence(info)
         return info
 
     def _get_category(self, filepath: Path) -> str:
@@ -210,8 +256,317 @@ class STEPParser:
         except ValueError:
             return False
 
+    def _extract_tolerance_info(self, content: str) -> dict:
+        result = {
+            'has_tolerance': False,
+            'tolerance_types': [],
+            'tolerance_count': 0,
+            'tolerance_values': [],
+        }
+
+        found_types = []
+        for pattern, tol_type in TOLERANCE_ENTITY_PATTERNS:
+            count = len(re.findall(pattern, content))
+            if count > 0:
+                found_types.append(tol_type)
+                result['tolerance_count'] += count
+
+        if found_types:
+            result['has_tolerance'] = True
+            result['tolerance_types'] = found_types
+
+        tolerance_value_matches = re.findall(
+            r'TOLERANCE_VALUE\s*\(\s*[^,]*\s*,\s*([^,]+)\s*,\s*([^)]+)\s*\)',
+            content,
+        )
+        for match in tolerance_value_matches:
+            try:
+                lower = float(match[0].strip())
+                upper = float(match[1].strip())
+                result['tolerance_values'].append({
+                    'lower': lower,
+                    'upper': upper,
+                    'range': round(abs(upper - lower), 4),
+                })
+            except (ValueError, IndexError):
+                pass
+
+        plus_minus_matches = re.findall(
+            r'PLUS_MINUS_TOLERANCE\s*\(\s*[^,]*\s*,\s*([^,]+)\s*,\s*([^)]+)\s*\)',
+            content,
+        )
+        for match in plus_minus_matches:
+            try:
+                upper = float(match[0].strip())
+                lower = float(match[1].strip())
+                result['tolerance_values'].append({
+                    'lower': -abs(lower),
+                    'upper': abs(upper),
+                    'range': round(abs(upper) + abs(lower), 4),
+                })
+            except (ValueError, IndexError):
+                pass
+
+        return result
+
+    def _extract_surface_finish(self, content: str) -> dict:
+        result = {
+            'has_surface_finish': False,
+            'finish_types': [],
+            'roughness_values': [],
+            'min_roughness': None,
+            'max_roughness': None,
+        }
+
+        found_types = []
+        for pattern, finish_type in SURFACE_FINISH_PATTERNS:
+            count = len(re.findall(pattern, content, re.IGNORECASE))
+            if count > 0:
+                found_types.append(finish_type)
+
+        if found_types:
+            result['has_surface_finish'] = True
+            result['finish_types'] = found_types
+
+        roughness_matches = re.findall(
+            r'(?:RA|ROUGHNESS)\s*[:=]?\s*([0-9]+\.?[0-9]*)',
+            content,
+            re.IGNORECASE,
+        )
+        for val_str in roughness_matches:
+            try:
+                val = float(val_str)
+                if 0.001 < val < 100:
+                    result['roughness_values'].append(val)
+            except ValueError:
+                pass
+
+        measure_roughness = re.findall(
+            r'MEASURE_REPRESENTATION_ITEM\s*\(\s*\'[^\']*\'\s*,\s*([0-9]+\.?[0-9]*)',
+            content,
+        )
+        for val_str in measure_roughness:
+            try:
+                val = float(val_str)
+                if 0.001 < val < 100:
+                    result['roughness_values'].append(val)
+            except ValueError:
+                pass
+
+        if result['roughness_values']:
+            result['roughness_values'] = sorted(set(round(v, 4) for v in result['roughness_values']))
+            result['min_roughness'] = min(result['roughness_values'])
+            result['max_roughness'] = max(result['roughness_values'])
+
+        return result
+
+    def _classify_part_type(self, info: dict) -> str:
+        scores = {}
+
+        for category, cat_info in CATEGORY_FEATURE_MAP.items():
+            score = 0.0
+
+            if category == 'bolt':
+                if info.get('has_thread_features'):
+                    score += 0.35
+                if info.get('cylindrical_surfaces', 0) >= 1:
+                    score += 0.15
+                if info.get('circle_curves', 0) > info.get('cylindrical_surfaces', 0):
+                    score += 0.15
+                if not info.get('has_hole_features'):
+                    score += 0.1
+                if not info.get('has_gear_features'):
+                    score += 0.05
+
+            elif category == 'gear':
+                if info.get('has_gear_features'):
+                    score += 0.35
+                if info.get('has_hole_features'):
+                    score += 0.15
+                if info.get('cylindrical_surfaces', 0) >= 2:
+                    score += 0.1
+                if info.get('bspline_surfaces', 0) > 0:
+                    score += 0.15
+                if info.get('ellipse_curves', 0) > 0:
+                    score += 0.05
+
+            elif category == 'nut':
+                if info.get('has_thread_features'):
+                    score += 0.3
+                if info.get('has_hole_features'):
+                    score += 0.25
+                if info.get('cylindrical_surfaces', 0) >= 2:
+                    score += 0.1
+                if not info.get('has_gear_features'):
+                    score += 0.05
+
+            elif category == 'shaft':
+                if info.get('has_rotation_features'):
+                    score += 0.25
+                if info.get('cylindrical_surfaces', 0) >= 2:
+                    score += 0.15
+                if info.get('conical_surfaces', 0) > 0:
+                    score += 0.15
+                if not info.get('has_hole_features'):
+                    score += 0.1
+                if not info.get('has_thread_features'):
+                    score += 0.05
+
+            elif category == 'flange':
+                if info.get('has_hole_features'):
+                    score += 0.3
+                if info.get('has_flat_features'):
+                    score += 0.2
+                if info.get('cylindrical_surfaces', 0) >= 2:
+                    score += 0.1
+                if not info.get('has_thread_features'):
+                    score += 0.1
+                if not info.get('has_gear_features'):
+                    score += 0.05
+
+            diameter = info.get('estimated_diameter')
+            length = info.get('estimated_length')
+            typ_d = cat_info.get('typical_diameter')
+            typ_l = cat_info.get('typical_length')
+
+            if diameter and typ_d:
+                if typ_d[0] <= diameter <= typ_d[1]:
+                    score += 0.1
+                else:
+                    dist = min(abs(diameter - typ_d[0]), abs(diameter - typ_d[1]))
+                    score += max(0, 0.1 - dist / 100)
+
+            if length and typ_l:
+                if typ_l[0] <= length <= typ_l[1]:
+                    score += 0.1
+                else:
+                    dist = min(abs(length - typ_l[0]), abs(length - typ_l[1]))
+                    score += max(0, 0.1 - dist / 100)
+
+            scores[category] = score
+
+        if not scores:
+            return ''
+
+        best_category = max(scores, key=scores.get)
+        best_score = scores[best_category]
+
+        if best_score < 0.2:
+            return ''
+
+        return best_category
+
+    def _estimate_material(self, info: dict) -> str:
+        classified = info.get('classified_category', '') or info.get('category', '')
+        cat_info = CATEGORY_FEATURE_MAP.get(classified, {})
+        default_material = cat_info.get('material', '')
+
+        diameter = info.get('estimated_diameter')
+        length = info.get('estimated_length')
+
+        if not diameter and not length:
+            return default_material
+
+        best_material = default_material
+        best_score = 0.0
+
+        for material, rules in MATERIAL_SIZE_RULES.items():
+            score = 0.0
+            d_range = rules.get('diameter_range')
+            l_range = rules.get('length_range')
+
+            if diameter and d_range:
+                if d_range[0] <= diameter <= d_range[1]:
+                    score += 0.5
+                else:
+                    dist = min(abs(diameter - d_range[0]), abs(diameter - d_range[1]))
+                    score += max(0, 0.5 - dist / 100)
+
+            if length and l_range:
+                if l_range[0] <= length <= l_range[1]:
+                    score += 0.5
+                else:
+                    dist = min(abs(length - l_range[0]), abs(length - l_range[1]))
+                    score += max(0, 0.5 - dist / 100)
+
+            if material == default_material:
+                score += 0.2
+
+            if score > best_score:
+                best_score = score
+                best_material = material
+
+        return best_material
+
+    def _compute_feature_confidence(self, info: dict) -> dict[str, float]:
+        confidence = {}
+
+        cyl = info.get('cylindrical_surfaces', 0)
+        pla = info.get('planar_surfaces', 0)
+        con = info.get('conical_surfaces', 0)
+        tor = info.get('toroidal_surfaces', 0)
+        bsp = info.get('bspline_surfaces', 0)
+        cir = info.get('circle_curves', 0)
+        ell = info.get('ellipse_curves', 0)
+
+        if cyl > 0:
+            confidence['圆柱面'] = min(1.0, 0.4 + cyl * 0.1)
+        if pla > 0:
+            confidence['平面'] = min(1.0, 0.3 + pla * 0.05)
+        if con > 0:
+            confidence['圆锥面'] = min(1.0, 0.5 + con * 0.15)
+        if cir > 0:
+            confidence['圆曲线'] = min(1.0, 0.3 + cir * 0.05)
+
+        if info.get('has_hole_features'):
+            hole_conf = 0.4
+            if cyl >= 3:
+                hole_conf += 0.2
+            if cir >= 3:
+                hole_conf += 0.15
+            if pla >= 2:
+                hole_conf += 0.1
+            confidence['通孔'] = min(1.0, hole_conf)
+        else:
+            if cyl >= 2 and cir >= 2:
+                confidence['通孔'] = 0.25
+
+        if info.get('has_thread_features'):
+            thread_conf = 0.3
+            if tor > 0:
+                thread_conf += 0.4
+            if cyl > 0 and cir > cyl:
+                thread_conf += 0.2
+            confidence['螺纹'] = min(1.0, thread_conf)
+        else:
+            if tor > 0:
+                confidence['螺纹'] = 0.35
+
+        if info.get('has_gear_features'):
+            gear_conf = 0.3
+            if bsp > 0:
+                gear_conf += 0.35
+            if ell > 0 and cyl > 0:
+                gear_conf += 0.2
+            confidence['齿形'] = min(1.0, gear_conf)
+        else:
+            if bsp > 0:
+                confidence['齿形'] = 0.35
+
+        if info.get('has_rotation_features'):
+            rot_conf = 0.4
+            if cyl > 1:
+                rot_conf += 0.2
+            if con > 0:
+                rot_conf += 0.15
+            if cir > 2:
+                rot_conf += 0.1
+            confidence['外圆'] = min(1.0, rot_conf)
+
+        return confidence
+
     def _infer_features(self, info: dict) -> list[str]:
-        category = info.get('category', '')
+        category = info.get('classified_category', '') or info.get('category', '')
         cat_info = CATEGORY_FEATURE_MAP.get(category, {})
         features = list(cat_info.get('primary_features', []))
 
@@ -224,7 +579,18 @@ class STEPParser:
         if info.get('conical_surfaces', 0) > 0 and '圆锥面' not in features:
             features.append('圆锥面')
 
-        return features
+        confidence = self._compute_feature_confidence(info)
+
+        scored = []
+        for feat in features:
+            score = confidence.get(feat, 0.5)
+            scored.append((feat, score))
+
+        scored.sort(key=lambda x: x[1], reverse=True)
+
+        filtered = [feat for feat, score in scored if score >= FEATURE_CONFIDENCE_THRESHOLD]
+
+        return filtered
 
     def _generate_summary(self, info: dict) -> str:
         parts = [f"零件类型: {info.get('category_cn', '未知')}"]
@@ -249,6 +615,17 @@ class STEPParser:
             parts.append(f"估算最大直径: {info['estimated_diameter']}mm")
         if info.get('estimated_length'):
             parts.append(f"估算最大长度: {info['estimated_length']}mm")
+
+        if info.get('estimated_material'):
+            parts.append(f"推断材料: {info['estimated_material']}")
+
+        tol_info = info.get('tolerance_info', {})
+        if tol_info.get('has_tolerance'):
+            parts.append(f"公差类型: {', '.join(tol_info.get('tolerance_types', []))}")
+
+        sf_info = info.get('surface_finish', {})
+        if sf_info.get('has_surface_finish'):
+            parts.append(f"表面粗糙度: 有")
 
         features = info.get('inferred_features', [])
         if not features:

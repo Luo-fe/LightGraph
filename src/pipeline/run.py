@@ -2,6 +2,7 @@ import asyncio
 import contextlib
 import json
 import logging
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -21,6 +22,7 @@ from src.graph.glm_client import GLMClient
 from src.graph.glm_embedder import GLMEmbedder
 from src.graph.knowledge_graph import CADKnowledgeGraph
 from src.recommend.recommender import ProcessRecommender
+from src.validation import TYPICAL_PART_TEST_CASES
 
 logging.basicConfig(
     level=logging.INFO,
@@ -40,6 +42,133 @@ for noisy in [
 logger = logging.getLogger(__name__)
 
 
+@dataclass
+class StepState:
+    name: str
+    status: str = 'pending'
+    start_time: datetime | None = None
+    end_time: datetime | None = None
+    result_summary: str = ''
+    error_info: str = ''
+
+    @property
+    def duration_seconds(self) -> float | None:
+        if self.start_time and self.end_time:
+            return (self.end_time - self.start_time).total_seconds()
+        return None
+
+    def to_dict(self) -> dict:
+        return {
+            'name': self.name,
+            'status': self.status,
+            'start_time': self.start_time.isoformat() if self.start_time else None,
+            'end_time': self.end_time.isoformat() if self.end_time else None,
+            'duration_seconds': self.duration_seconds,
+            'result_summary': self.result_summary,
+            'error_info': self.error_info,
+        }
+
+
+class PipelineState:
+    def __init__(self):
+        self.steps: dict[str, StepState] = {}
+        self.start_time: datetime | None = None
+        self.end_time: datetime | None = None
+
+    def start_step(self, name: str):
+        if name not in self.steps:
+            self.steps[name] = StepState(name=name)
+        step = self.steps[name]
+        step.status = 'running'
+        step.start_time = datetime.now(timezone.utc)
+        logger.info(f'[PipelineState] 步骤 "{name}" 开始执行')
+
+    def finish_step(self, name: str, result_summary: str = ''):
+        if name not in self.steps:
+            return
+        step = self.steps[name]
+        step.status = 'success'
+        step.end_time = datetime.now(timezone.utc)
+        step.result_summary = result_summary
+        logger.info(
+            f'[PipelineState] 步骤 "{name}" 完成 '
+            f'(耗时{step.duration_seconds:.1f}s): {result_summary}'
+        )
+
+    def fail_step(self, name: str, error_info: str):
+        if name not in self.steps:
+            self.steps[name] = StepState(name=name)
+        step = self.steps[name]
+        step.status = 'failed'
+        step.end_time = datetime.now(timezone.utc)
+        step.error_info = error_info
+        logger.error(f'[PipelineState] 步骤 "{name}" 失败: {error_info}')
+
+    def skip_step(self, name: str, reason: str = ''):
+        if name not in self.steps:
+            self.steps[name] = StepState(name=name)
+        step = self.steps[name]
+        step.status = 'skipped'
+        step.end_time = datetime.now(timezone.utc)
+        step.result_summary = reason
+        logger.info(f'[PipelineState] 步骤 "{name}" 跳过: {reason}')
+
+    def get_summary(self) -> dict:
+        total = len(self.steps)
+        success = sum(1 for s in self.steps.values() if s.status == 'success')
+        failed = sum(1 for s in self.steps.values() if s.status == 'failed')
+        skipped = sum(1 for s in self.steps.values() if s.status == 'skipped')
+        pending = sum(1 for s in self.steps.values() if s.status in ('pending', 'running'))
+        return {
+            'total_steps': total,
+            'success': success,
+            'failed': failed,
+            'skipped': skipped,
+            'pending_or_running': pending,
+            'pipeline_start': self.start_time.isoformat() if self.start_time else None,
+            'pipeline_end': self.end_time.isoformat() if self.end_time else None,
+        }
+
+    def to_dict(self) -> dict:
+        return {
+            'summary': self.get_summary(),
+            'steps': {name: step.to_dict() for name, step in self.steps.items()},
+        }
+
+    def format_report(self) -> str:
+        lines = []
+        lines.append('=' * 70)
+        lines.append('流程执行报告')
+        lines.append('=' * 70)
+        summary = self.get_summary()
+        lines.append(
+            f'总步骤: {summary["total_steps"]}, '
+            f'成功: {summary["success"]}, '
+            f'失败: {summary["failed"]}, '
+            f'跳过: {summary["skipped"]}, '
+            f'未完成: {summary["pending_or_running"]}'
+        )
+        lines.append('-' * 70)
+        for name, step in self.steps.items():
+            duration = f'{step.duration_seconds:.1f}s' if step.duration_seconds is not None else 'N/A'
+            status_icon = {
+                'success': '✓',
+                'failed': '✗',
+                'skipped': '○',
+                'running': '⟳',
+                'pending': '·',
+            }.get(step.status, '?')
+            lines.append(
+                f'  [{status_icon}] {name}: {step.status} ({duration})'
+            )
+            if step.result_summary:
+                lines.append(f'      结果: {step.result_summary}')
+            if step.error_info:
+                lines.append(f'      错误: {step.error_info}')
+        lines.append('=' * 70)
+        return '\n'.join(lines)
+
+
 async def run_data_pipeline(raw_data_path: Path | None = None) -> dict:
     logger.info('=' * 60)
     logger.info('工作1：历史数据收集、清洗、结构化、标注和入库')
@@ -57,14 +186,26 @@ async def run_data_pipeline(raw_data_path: Path | None = None) -> dict:
 
     collector.save_raw_data(raw_data)
 
-    cleaned_data = cleaner.clean_dataset(raw_data)
+    cleaned_data = cleaner.clean_and_score_dataset(raw_data)
     cleaner.save_cleaned_data(cleaned_data)
 
-    cases = structurer.structure_dataset(cleaned_data)
+    cases = []
+    for item in cleaned_data:
+        case = structurer.structure_and_annotate(item)
+        if case:
+            cases.append(case)
     structurer.save_structured_data(cases)
 
     training_data = structurer.generate_training_data(cases)
     structurer.save_training_data(training_data)
+
+    all_triples = []
+    for case in cases:
+        triples = structurer.generate_knowledge_triples(case)
+        all_triples.extend(triples)
+    if all_triples:
+        structurer.save_knowledge_triples(all_triples)
+        logger.info(f'知识三元组生成完成: {len(all_triples)} 条')
 
     embedder = GLMEmbedder()
     vector_store = VectorStore(embedder=embedder)
@@ -86,14 +227,16 @@ async def run_data_pipeline(raw_data_path: Path | None = None) -> dict:
         await kg.close()
 
     logger.info(
-        f'数据处理完成: 原始{len(raw_data)}条 -> 清洗{len(cleaned_data)}条 '
-        f'-> 结构化{len(cases)}条 -> 向量库{len(docs)}条 -> 知识图谱{kg_count}条'
+        f'数据处理完成: 原始{len(raw_data)}条 -> 清洗评分{len(cleaned_data)}条 '
+        f'-> 结构化标注{len(cases)}条 -> 训练数据{len(training_data)}条 '
+        f'-> 三元组{len(all_triples)}条 -> 向量库{len(docs)}条 -> 知识图谱{kg_count}条'
     )
     return {
         'raw_count': len(raw_data),
         'cleaned_count': len(cleaned_data),
         'structured_count': len(cases),
         'training_count': len(training_data),
+        'triple_count': len(all_triples),
         'vector_count': len(docs),
         'kg_count': kg_count,
     }
@@ -209,20 +352,77 @@ async def run_end_to_end(feature_input: dict | str) -> list[dict]:
     logger.info('工作4：端到端流程')
     logger.info('=' * 60)
 
-    features = await run_feature_recognition(feature_input)
+    extractor = FeatureExtractor()
+
+    if isinstance(feature_input, dict):
+        text_input = json.dumps(feature_input, ensure_ascii=False)
+    else:
+        text_input = feature_input
+
+    extract_result = await extractor.extract_and_validate(text_input)
+    features = extract_result['features']
 
     if not features:
         logger.error('未识别到任何加工特征')
+        await extractor.glm_client.close()
         return []
 
-    results = await run_process_recommendation(features)
-
-    output_path = DATA_DIR / 'output'
-    output_path.mkdir(parents=True, exist_ok=True)
+    intermediate_path = DATA_DIR / 'output'
+    intermediate_path.mkdir(parents=True, exist_ok=True)
     timestamp = datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')
-    filepath = output_path / f'result_{timestamp}.json'
+
+    feature_result_path = intermediate_path / f'feature_result_{timestamp}.json'
+    feature_save_data = {
+        'features': [f.model_dump() for f in features],
+        'validations': extract_result['validations'],
+        'refined': extract_result['refined'],
+    }
+    with open(feature_result_path, 'w', encoding='utf-8') as f:
+        json.dump(feature_save_data, f, ensure_ascii=False, indent=2)
+    logger.info(f'特征识别中间结果已保存至 {feature_result_path}')
+
+    kg = CADKnowledgeGraph()
+    connected = await kg.initialize()
+    if not connected:
+        logger.warning('知识图谱未连接，将仅使用LLM和向量库')
+        kg = None
+
+    embedder = GLMEmbedder()
+    vector_store = VectorStore(embedder=embedder)
+    with contextlib.suppress(Exception):
+        vector_store.load()
+
+    recommender = ProcessRecommender(
+        knowledge_graph=kg,
+        vector_store=vector_store,
+    )
+
+    results = []
+    for feature in features:
+        recommendation = await recommender.recommend_with_full_validation(feature)
+        detailed_output = recommender.format_detailed_output(recommendation)
+        results.append(detailed_output)
+
+        provenance = recommendation.get('provenance', {})
+        retrieval_path = intermediate_path / f'retrieval_result_{timestamp}_{feature.feature_type}.json'
+        retrieval_save_data = {
+            'feature_type': feature.feature_type,
+            'provenance': provenance,
+        }
+        with open(retrieval_path, 'w', encoding='utf-8') as f:
+            json.dump(retrieval_save_data, f, ensure_ascii=False, indent=2, default=str)
+        logger.info(f'检索结果中间结果已保存至 {retrieval_path}')
+
+        logger.info(f'推荐结果: {json.dumps(detailed_output, ensure_ascii=False, indent=2)[:400]}...')
+
+    if kg:
+        await kg.close()
+    await embedder.close()
+    await extractor.glm_client.close()
+
+    filepath = intermediate_path / f'result_{timestamp}.json'
     with open(filepath, 'w', encoding='utf-8') as f:
-        json.dump(results, f, ensure_ascii=False, indent=2)
+        json.dump(results, f, ensure_ascii=False, indent=2, default=str)
     logger.info(f'结果已保存至 {filepath}')
 
     return results
@@ -343,7 +543,7 @@ async def run_tmcad_knowledge_build(max_per_category: int = 5) -> dict:
                 }
                 tmcad_cases.append(case)
         except Exception as e:
-            logger.warning(f'特征识别失败 {part['filename']}: {e}')
+            logger.warning(f'特征识别失败 {part["filename"]}: {e}')
 
     await glm_client.close()
     logger.info(f'生成 {len(tmcad_cases)} 条TMCAD工艺案例')
@@ -554,6 +754,159 @@ async def run_validation(test_cases: list[dict]) -> dict:
     await embedder.close()
 
     return validation_report
+
+
+async def run_typical_part_validation() -> dict:
+    logger.info('=' * 60)
+    logger.info('工作3+：典型零件完整验证（轴类+齿轮）')
+    logger.info('=' * 60)
+
+    extractor = FeatureExtractor()
+    kg = CADKnowledgeGraph()
+    connected = await kg.initialize()
+    if not connected:
+        logger.warning('知识图谱未连接，将仅使用LLM和向量库')
+        kg = None
+
+    embedder = GLMEmbedder()
+    vector_store = VectorStore(embedder=embedder)
+    with contextlib.suppress(Exception):
+        vector_store.load()
+
+    recommender = ProcessRecommender(
+        knowledge_graph=kg,
+        vector_store=vector_store,
+    )
+
+    all_results = {}
+    overall_correct_method = 0
+    overall_correct_tool = 0
+    overall_total = 0
+
+    for part_key, part_info in TYPICAL_PART_TEST_CASES.items():
+        part_name = part_info['name']
+        test_cases = part_info['test_cases']
+        logger.info(f'\n--- 验证 {part_name} ({part_info["description"]}) ---')
+
+        part_results = []
+        correct_method = 0
+        correct_tool = 0
+        total = len(test_cases)
+
+        for i, test_case in enumerate(test_cases):
+            expected_method = test_case.get('expected_method', '')
+            expected_tool_diameter = test_case.get('expected_tool_diameter')
+
+            feature = extractor.extract_from_structured_data(test_case)
+            if feature is None:
+                logger.warning(f'  {part_name} 测试用例 {i} 特征提取失败')
+                part_results.append({
+                    'test_case': i,
+                    'feature_type': test_case.get('feature_type', ''),
+                    'status': 'extraction_failed',
+                })
+                continue
+
+            try:
+                recommendation = await recommender.recommend_with_full_validation(feature)
+                detailed_output = recommender.format_detailed_output(recommendation)
+
+                recommended_method = detailed_output.get('加工方法', '')
+                method_match = expected_method in recommended_method if expected_method else None
+                if method_match:
+                    correct_method += 1
+
+                tool_match = None
+                if expected_tool_diameter:
+                    params = detailed_output.get('加工参数', {})
+                    tool_d = params.get('刀具直径(mm)')
+                    if tool_d:
+                        tool_match = (
+                            abs(float(tool_d) - float(expected_tool_diameter))
+                            / float(expected_tool_diameter)
+                            < 0.2
+                        )
+                        if tool_match:
+                            correct_tool += 1
+
+                part_results.append({
+                    'test_case': i,
+                    'feature_type': test_case.get('feature_type', ''),
+                    'expected_method': expected_method,
+                    'recommended_method': recommended_method,
+                    'method_match': method_match,
+                    'tool_match': tool_match,
+                    'confidence': detailed_output.get('置信度', {}),
+                    'output': detailed_output,
+                })
+                logger.info(
+                    f'  {part_name} 用例{i}: 特征={test_case.get("feature_type", "")}, '
+                    f'期望={expected_method}, 推荐={recommended_method}, '
+                    f'方法匹配={method_match}, 刀具匹配={tool_match}'
+                )
+            except Exception as e:
+                logger.error(f'  {part_name} 用例{i} 推荐失败: {e}')
+                part_results.append({
+                    'test_case': i,
+                    'feature_type': test_case.get('feature_type', ''),
+                    'status': 'recommendation_failed',
+                    'error': str(e),
+                })
+
+        part_mdpm = correct_method / total if total > 0 else 0
+        part_mdmt = (
+            correct_tool / total
+            if total > 0 and any(tc.get('expected_tool_diameter') for tc in test_cases)
+            else None
+        )
+
+        all_results[part_key] = {
+            'name': part_name,
+            'description': part_info['description'],
+            'total_cases': total,
+            'mdpm': part_mdpm,
+            'mdmt': part_mdmt,
+            'results': part_results,
+        }
+
+        overall_correct_method += correct_method
+        overall_correct_tool += correct_tool
+        overall_total += total
+
+        logger.info(
+            f'  {part_name} 验证结果: MDPM={part_mdpm:.2%}, '
+            f'MDMT={part_mdmt}'
+        )
+
+    overall_mdpm = overall_correct_method / overall_total if overall_total > 0 else 0
+    overall_mdmt = (
+        overall_correct_tool / overall_total
+        if overall_total > 0
+        else None
+    )
+
+    report = {
+        'overall_mdpm': overall_mdpm,
+        'overall_mdmt': overall_mdmt,
+        'overall_total': overall_total,
+        'parts': all_results,
+    }
+
+    report_path = DATA_DIR / 'typical_part_validation_report.json'
+    with open(report_path, 'w', encoding='utf-8') as f:
+        json.dump(report, f, ensure_ascii=False, indent=2, default=str)
+    logger.info(f'典型零件验证报告已保存至 {report_path}')
+    logger.info(
+        f'总体验证结果: MDPM={overall_mdpm:.2%}, MDMT={overall_mdmt}, '
+        f'总用例数={overall_total}'
+    )
+
+    if kg:
+        await kg.close()
+    await extractor.glm_client.close()
+    await embedder.close()
+
+    return report
 
 
 def _generate_sample_data() -> list[dict]:
@@ -1030,22 +1383,42 @@ def _get_validation_test_cases() -> list[dict]:
     ]
 
 
+def save_pipeline_report(pipeline_state: PipelineState, step_results: dict) -> Path:
+    report_path = DATA_DIR / 'pipeline_report.json'
+    report = {
+        'pipeline_state': pipeline_state.to_dict(),
+        'step_results': step_results,
+    }
+    with open(report_path, 'w', encoding='utf-8') as f:
+        json.dump(report, f, ensure_ascii=False, indent=2, default=str)
+    logger.info(f'流程报告已保存至 {report_path}')
+    return report_path
+
+
 async def main():
     logger.info('CAD工艺知识图谱系统启动')
 
+    pipeline_state = PipelineState()
+    pipeline_state.start_time = datetime.now(timezone.utc)
+    step_results = {}
+
     logger.info('\n步骤0: 清空Neo4j旧数据')
-    kg = CADKnowledgeGraph()
+    pipeline_state.start_step('clear_neo4j')
     try:
+        kg = CADKnowledgeGraph()
         cleared = await kg.clear_all_data()
         if cleared:
             logger.info('Neo4j旧数据已清空')
         else:
             logger.info('Neo4j清空跳过（可能未连接或graphiti不可用）')
+        await kg.close()
+        pipeline_state.finish_step('clear_neo4j', f'清空结果: {cleared}')
     except Exception as e:
         logger.warning(f'清空Neo4j失败: {e}')
-    await kg.close()
+        pipeline_state.fail_step('clear_neo4j', str(e))
 
     logger.info('\n步骤1: 测试GLM API连接')
+    pipeline_state.start_step('test_glm_api')
     try:
         glm_client = GLMClient()
         response = await glm_client.chat([
@@ -1053,55 +1426,115 @@ async def main():
         ])
         logger.info(f'GLM API连接成功，响应: {response[:80]}...')
         await glm_client.close()
+        pipeline_state.finish_step('test_glm_api', 'GLM API连接成功')
     except Exception as e:
         logger.error(f'GLM API连接失败: {e}')
-        return
+        pipeline_state.fail_step('test_glm_api', str(e))
 
-    logger.info('\n步骤2: 工作1 - 填充知识库（数据收集→清洗→结构化→向量库→知识图谱）')
-    data_result = await run_data_pipeline()
-    logger.info(f'数据处理结果: {data_result}')
+    logger.info('\n步骤2: 工作1 - 填充知识库（数据收集→清洗评分→结构化标注→三元组→向量库→知识图谱）')
+    pipeline_state.start_step('data_pipeline')
+    try:
+        data_result = await run_data_pipeline()
+        step_results['data_pipeline'] = data_result
+        logger.info(f'数据处理结果: {data_result}')
+        pipeline_state.finish_step(
+            'data_pipeline',
+            f'原始{data_result["raw_count"]}条->清洗{data_result["cleaned_count"]}条'
+            f'->结构化{data_result["structured_count"]}条->三元组{data_result["triple_count"]}条'
+        )
+    except Exception as e:
+        logger.error(f'数据处理流程失败: {e}')
+        pipeline_state.fail_step('data_pipeline', str(e))
 
     logger.info('\n步骤3: 工作1补充 - TMCAD数据集知识库构建')
+    pipeline_state.start_step('tmcad_knowledge_build')
     try:
         tmcad_kg_result = await run_tmcad_knowledge_build(max_per_category=3)
+        step_results['tmcad_knowledge_build'] = tmcad_kg_result
         logger.info(f'TMCAD知识库构建结果: {tmcad_kg_result}')
+        pipeline_state.finish_step(
+            'tmcad_knowledge_build',
+            f'扫描{tmcad_kg_result["parts_scanned"]}个零件,'
+            f'生成{tmcad_kg_result["cases_generated"]}条案例'
+        )
     except Exception as e:
         logger.error(f'TMCAD知识库构建失败: {e}')
+        pipeline_state.fail_step('tmcad_knowledge_build', str(e))
 
     logger.info('\n步骤4: 工作3 - 典型零件原型验证')
-    test_cases = _get_validation_test_cases()
-    validation_report = await run_validation(test_cases)
-    logger.info(
-        f'验证结果: MDPM={validation_report["mdpm"]:.2%}, '
-        f'MDMT={validation_report["mdmt"]}'
-    )
-
-    logger.info('\n步骤5: 工作4 - 示例数据端到端流程')
-    test_input = {
-        'feature_type': '四边形腔',
-        'length': 100,
-        'width': 80,
-        'diameter': None,
-        'depth': 40,
-        'precision': 'IT8',
-        'roughness': 6.3,
-    }
+    pipeline_state.start_step('validation')
     try:
+        test_cases = _get_validation_test_cases()
+        validation_report = await run_validation(test_cases)
+        step_results['validation'] = validation_report
+        logger.info(
+            f'验证结果: MDPM={validation_report["mdpm"]:.2%}, '
+            f'MDMT={validation_report["mdmt"]}'
+        )
+        pipeline_state.finish_step(
+            'validation',
+            f'MDPM={validation_report["mdpm"]:.2%}, MDMT={validation_report["mdmt"]}'
+        )
+    except Exception as e:
+        logger.error(f'典型零件原型验证失败: {e}')
+        pipeline_state.fail_step('validation', str(e))
+
+    logger.info('\n步骤5: 工作3+ - 典型零件完整验证（轴类+齿轮）')
+    pipeline_state.start_step('typical_part_validation')
+    try:
+        typical_report = await run_typical_part_validation()
+        step_results['typical_part_validation'] = typical_report
+        pipeline_state.finish_step(
+            'typical_part_validation',
+            f'总体MDPM={typical_report["overall_mdpm"]:.2%}, '
+            f'MDMT={typical_report["overall_mdmt"]}, '
+            f'总用例={typical_report["overall_total"]}'
+        )
+    except Exception as e:
+        logger.error(f'典型零件完整验证失败: {e}')
+        pipeline_state.fail_step('typical_part_validation', str(e))
+
+    logger.info('\n步骤6: 工作4 - 示例数据端到端流程')
+    pipeline_state.start_step('end_to_end')
+    try:
+        test_input = {
+            'feature_type': '四边形腔',
+            'length': 100,
+            'width': 80,
+            'diameter': None,
+            'depth': 40,
+            'precision': 'IT8',
+            'roughness': 6.3,
+        }
         results = await run_end_to_end(test_input)
+        step_results['end_to_end'] = {'result_count': len(results)}
         logger.info(f'端到端流程完成，生成 {len(results)} 条推荐结果')
         if results:
             logger.info(
                 f'推荐结果示例: {json.dumps(results[0], ensure_ascii=False, indent=2)[:400]}...'
             )
+        pipeline_state.finish_step('end_to_end', f'生成{len(results)}条推荐结果')
     except Exception as e:
         logger.error(f'端到端流程失败: {e}')
+        pipeline_state.fail_step('end_to_end', str(e))
 
-    logger.info('\n步骤6: 工作4 - TMCAD数据集端到端流程（每类2个零件）')
+    logger.info('\n步骤7: 工作4 - TMCAD数据集端到端流程（每类2个零件）')
+    pipeline_state.start_step('tmcad_end_to_end')
     try:
         tmcad_results = await run_tmcad_end_to_end(max_per_category=2)
+        step_results['tmcad_end_to_end'] = {'result_count': len(tmcad_results)}
         logger.info(f'TMCAD流程完成，共 {len(tmcad_results)} 条推荐结果')
+        pipeline_state.finish_step('tmcad_end_to_end', f'共{len(tmcad_results)}条推荐结果')
     except Exception as e:
         logger.error(f'TMCAD流程失败: {e}')
+        pipeline_state.fail_step('tmcad_end_to_end', str(e))
+
+    pipeline_state.end_time = datetime.now(timezone.utc)
+
+    report_text = pipeline_state.format_report()
+    logger.info(f'\n{report_text}')
+
+    save_pipeline_report(pipeline_state, step_results)
 
     logger.info('\n所有步骤执行完毕')
 

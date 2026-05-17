@@ -7,6 +7,9 @@ from pydantic import BaseModel, Field
 from src.config.settings import (
     ANNOTATED_DATA_DIR,
     FEATURE_NAME_MAP,
+    FEED_RATE_RANGE,
+    MACHINING_METHODS,
+    SPINDLE_SPEED_RANGE,
 )
 
 logger = logging.getLogger(__name__)
@@ -47,6 +50,13 @@ class TrainingDataItem(BaseModel):
     output: str = Field(description='输出')
 
 
+class KnowledgeTriple(BaseModel):
+    source_entity: str = Field(description='源实体')
+    relation: str = Field(description='关系')
+    target_entity: str = Field(description='目标实体')
+    attributes: dict = Field(default_factory=dict, description='属性')
+
+
 class DataStructurer:
     def __init__(self, output_dir: Path | None = None):
         self.output_dir = output_dir or ANNOTATED_DATA_DIR
@@ -57,6 +67,17 @@ class DataStructurer:
             if chn in feature_type or eng in feature_type.lower():
                 return eng
         return feature_type
+
+    def _determine_process_type(self, method: str) -> str:
+        if any(k in method for k in ['铣', '腔', '槽']):
+            return 'milling'
+        if any(k in method for k in ['钻', '扩', '铰']):
+            return 'drilling'
+        if any(k in method for k in ['车', '圆']):
+            return 'turning'
+        if any(k in method for k in ['滚', '剃', '磨齿']):
+            return 'milling'
+        return 'turning'
 
     def structure_process_case(self, raw_data: dict) -> ProcessCase | None:
         try:
@@ -153,4 +174,135 @@ class DataStructurer:
         with open(filepath, 'w', encoding='utf-8') as f:
             json.dump(items, f, ensure_ascii=False, indent=2)
         logger.info(f'训练数据已保存至 {filepath}')
+        return filepath
+
+    def generate_knowledge_triples(self, case: ProcessCase) -> list[KnowledgeTriple]:
+        triples = []
+        feature = case.feature
+        feature_name = FEATURE_NAME_MAP.get(feature.feature_type, feature.feature_type)
+        method = case.machining_method
+
+        feature_attrs = {}
+        if feature.length is not None:
+            feature_attrs['长度'] = feature.length
+        if feature.width is not None:
+            feature_attrs['宽度'] = feature.width
+        if feature.diameter is not None:
+            feature_attrs['直径'] = feature.diameter
+        if feature.depth is not None:
+            feature_attrs['深度'] = feature.depth
+        if feature.precision is not None:
+            feature_attrs['精度'] = feature.precision
+        if feature.roughness is not None:
+            feature_attrs['粗糙度'] = feature.roughness
+
+        triples.append(KnowledgeTriple(
+            source_entity=feature_name,
+            relation='使用',
+            target_entity=method,
+            attributes=feature_attrs,
+        ))
+
+        if case.tool:
+            tool_attrs = {}
+            if case.parameters.tool_diameter is not None:
+                tool_attrs['刀具直径'] = case.parameters.tool_diameter
+            triples.append(KnowledgeTriple(
+                source_entity=method,
+                relation='需要',
+                target_entity=case.tool,
+                attributes=tool_attrs,
+            ))
+
+        if case.material:
+            triples.append(KnowledgeTriple(
+                source_entity=method,
+                relation='适用于',
+                target_entity=case.material,
+                attributes={},
+            ))
+
+        if case.machine_tool:
+            triples.append(KnowledgeTriple(
+                source_entity=method,
+                relation='在机床上执行',
+                target_entity=case.machine_tool,
+                attributes={},
+            ))
+
+        param_attrs = {}
+        if case.parameters.spindle_speed is not None:
+            param_attrs['主轴转速'] = case.parameters.spindle_speed
+        if case.parameters.feed_rate is not None:
+            param_attrs['进给速度'] = case.parameters.feed_rate
+        if case.parameters.cutting_depth is not None:
+            param_attrs['切削深度'] = case.parameters.cutting_depth
+        if case.parameters.cutting_width is not None:
+            param_attrs['切削宽度'] = case.parameters.cutting_width
+        if param_attrs:
+            triples.append(KnowledgeTriple(
+                source_entity=method,
+                relation='具有参数',
+                target_entity=f'{method}工艺参数',
+                attributes=param_attrs,
+            ))
+
+        return triples
+
+    def auto_annotate(self, case: ProcessCase) -> ProcessCase:
+        feature_type = case.feature.feature_type
+        update_data = case.model_dump()
+
+        if not case.machining_method or case.machining_method.strip() == '':
+            methods = MACHINING_METHODS.get(feature_type, [])
+            if methods:
+                update_data['machining_method'] = methods[0]
+
+        if not case.process_route or case.process_route.strip() == '':
+            methods = MACHINING_METHODS.get(feature_type, [])
+            if methods:
+                update_data['process_route'] = methods[0]
+
+        method = update_data.get('machining_method', case.machining_method)
+        process_type = self._determine_process_type(method)
+
+        speed_range = SPINDLE_SPEED_RANGE.get(process_type)
+        feed_range = FEED_RATE_RANGE.get(process_type)
+
+        if case.parameters.spindle_speed is None and speed_range:
+            update_data['parameters']['spindle_speed'] = (speed_range[0] + speed_range[1]) / 2
+
+        if case.parameters.feed_rate is None and feed_range:
+            update_data['parameters']['feed_rate'] = (feed_range[0] + feed_range[1]) / 2
+
+        if case.parameters.tool_diameter is None and case.feature.diameter is not None:
+            update_data['parameters']['tool_diameter'] = case.feature.diameter
+
+        if case.parameters.cutting_depth is None and case.feature.depth is not None:
+            update_data['parameters']['cutting_depth'] = case.feature.depth * 0.5
+
+        if case.parameters.cutting_width is None and case.feature.width is not None:
+            update_data['parameters']['cutting_width'] = case.feature.width * 0.5
+
+        if case.tool is None or case.tool.strip() == '':
+            if case.parameters.tool_diameter is not None:
+                update_data['tool'] = f'φ{case.parameters.tool_diameter}铣刀' if process_type == 'milling' else f'φ{case.parameters.tool_diameter}钻头'
+            elif case.feature.diameter is not None:
+                update_data['tool'] = f'φ{case.feature.diameter}铣刀' if process_type == 'milling' else f'φ{case.feature.diameter}钻头'
+
+        return ProcessCase(**update_data)
+
+    def structure_and_annotate(self, raw_data: dict) -> ProcessCase | None:
+        case = self.structure_process_case(raw_data)
+        if case is None:
+            return None
+        annotated = self.auto_annotate(case)
+        return annotated
+
+    def save_knowledge_triples(self, triples: list[KnowledgeTriple], filename: str = 'knowledge_triples.json'):
+        filepath = self.output_dir / filename
+        data = [triple.model_dump() for triple in triples]
+        with open(filepath, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        logger.info(f'知识三元组已保存至 {filepath}，共 {len(triples)} 条')
         return filepath

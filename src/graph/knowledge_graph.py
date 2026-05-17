@@ -2,6 +2,8 @@ import contextlib
 import json
 import logging
 import os
+import re
+import unicodedata
 from datetime import datetime, timezone
 
 from src.config.settings import (
@@ -35,9 +37,40 @@ except ImportError:
 class CADKnowledgeGraph:
     GROUP_ID = 'cad_process_knowledge'
 
+    ENTITY_DEDUPE_SIMILARITY_THRESHOLD = 0.85
+    RERANK_WEIGHT_KEYWORD = 0.3
+    RERANK_WEIGHT_SEMANTIC = 0.5
+    RERANK_WEIGHT_GRAPH = 0.2
+
     def __init__(self):
         self.graphiti: Graphiti | None = None
         self._connected = False
+        self._neo4j_driver = None
+
+    @staticmethod
+    def normalize_entity_name(name: str) -> str:
+        if not name:
+            return ''
+        name = unicodedata.normalize('NFKC', name)
+        name = name.strip()
+        name = name.lower()
+        name = re.sub(r'[\s\u3000]+', '_', name)
+        name = re.sub(r'[^\w\u4e00-\u9fff]', '', name)
+        return name
+
+    def _get_neo4j_driver(self):
+        if self._neo4j_driver is not None:
+            return self._neo4j_driver
+        try:
+            from neo4j import GraphDatabase
+
+            self._neo4j_driver = GraphDatabase.driver(
+                NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD)
+            )
+            return self._neo4j_driver
+        except Exception as e:
+            logger.warning(f'Neo4j驱动创建失败: {e}')
+            return None
 
     async def initialize(self, timeout: float = 10.0) -> bool:
         if not GRAPHITI_AVAILABLE:
@@ -107,6 +140,177 @@ class CADKnowledgeGraph:
     def is_connected(self) -> bool:
         return self._connected and self.graphiti is not None
 
+    async def _compute_embedding_similarity(self, text_a: str, text_b: str) -> float:
+        try:
+            import numpy as np
+            from openai import OpenAI
+
+            client = OpenAI(api_key=GLM_API_KEY, base_url=GLM_BASE_URL)
+            resp = client.embeddings.create(
+                model=GLM_EMBEDDING_MODEL,
+                input=[text_a, text_b],
+            )
+            emb_a = np.array(resp.data[0].embedding)
+            emb_b = np.array(resp.data[1].embedding)
+            norm_a = np.linalg.norm(emb_a)
+            norm_b = np.linalg.norm(emb_b)
+            if norm_a == 0 or norm_b == 0:
+                return 0.0
+            return float(np.dot(emb_a, emb_b) / (norm_a * norm_b))
+        except Exception as e:
+            logger.warning(f'计算嵌入相似度失败: {e}')
+            return 0.0
+
+    async def _extract_entities_from_text(self, text: str) -> dict:
+        try:
+            from openai import OpenAI
+
+            client = OpenAI(api_key=GLM_API_KEY, base_url=GLM_BASE_URL)
+            prompt = (
+                '从以下工艺知识文本中抽取实体和关系。'
+                '请以JSON格式输出，包含"entities"和"relations"两个字段。\n'
+                'entities是一个数组，每个元素包含"name"和"type"字段，type可选值为：'
+                'FeatureType, Method, Material, MachineTool, Process, Parameter。\n'
+                'relations是一个数组，每个元素包含"source", "relation", "target"字段。\n\n'
+                f'文本：{text}\n\n请输出JSON：'
+            )
+            resp = client.chat.completions.create(
+                model=GLM_MODEL,
+                messages=[{'role': 'user', 'content': prompt}],
+                temperature=0.1,
+                response_format={'type': 'json_object'},
+            )
+            content = resp.choices[0].message.content or '{}'
+            parsed = json.loads(content)
+            entities = parsed.get('entities', [])
+            relations = parsed.get('relations', [])
+            return {'entities': entities, 'relations': relations}
+        except Exception as e:
+            logger.warning(f'LLM实体抽取失败: {e}')
+            return {'entities': [], 'relations': []}
+
+    async def _deduplicate_entities(self, entities: list[dict]) -> list[dict]:
+        if not entities:
+            return []
+
+        normalized_map: dict[str, dict] = {}
+        for entity in entities:
+            norm_name = self.normalize_entity_name(entity.get('name', ''))
+            if not norm_name:
+                continue
+            if norm_name not in normalized_map:
+                normalized_map[norm_name] = entity
+            else:
+                existing = normalized_map[norm_name]
+                if len(entity.get('name', '')) > len(existing.get('name', '')):
+                    normalized_map[norm_name] = entity
+
+        deduped = list(normalized_map.values())
+
+        if len(deduped) <= 1:
+            return deduped
+
+        merge_groups: dict[int, list[dict]] = {}
+        assigned: dict[int, int] = {}
+        group_counter = 0
+
+        for i, ent_a in enumerate(deduped):
+            if i in assigned:
+                continue
+            group_id = group_counter
+            group_counter += 1
+            merge_groups[group_id] = [ent_a]
+            assigned[i] = group_id
+
+            for j in range(i + 1, len(deduped)):
+                if j in assigned:
+                    continue
+                ent_b = deduped[j]
+                name_a = ent_a.get('name', '')
+                name_b = ent_b.get('name', '')
+                similarity = await self._compute_embedding_similarity(name_a, name_b)
+                if similarity >= self.ENTITY_DEDUPE_SIMILARITY_THRESHOLD:
+                    merge_groups[group_id].append(ent_b)
+                    assigned[j] = group_id
+
+        result = []
+        for group in merge_groups.values():
+            representative = max(group, key=lambda e: len(e.get('name', '')))
+            result.append(representative)
+
+        return result
+
+    async def _deduplicate_relations(
+        self, relations: list[dict], entities: list[dict]
+    ) -> list[dict]:
+        entity_names = {self.normalize_entity_name(e.get('name', '')) for e in entities}
+        seen: set[str] = set()
+        result = []
+        for rel in relations:
+            src_norm = self.normalize_entity_name(rel.get('source', ''))
+            tgt_norm = self.normalize_entity_name(rel.get('target', ''))
+            relation = rel.get('relation', '')
+            if src_norm not in entity_names or tgt_norm not in entity_names:
+                continue
+            key = f'{src_norm}|{relation}|{tgt_norm}'
+            if key in seen:
+                continue
+            seen.add(key)
+            result.append(rel)
+        return result
+
+    async def extract_and_deduplicate_entities(self, text: str) -> dict:
+        extraction = await self._extract_entities_from_text(text)
+        raw_entities = extraction.get('entities', [])
+        raw_relations = extraction.get('relations', [])
+
+        deduped_entities = await self._deduplicate_entities(raw_entities)
+        deduped_relations = await self._deduplicate_relations(raw_relations, deduped_entities)
+
+        logger.info(
+            f'实体抽取与去重: 原始{len(raw_entities)}个实体/{len(raw_relations)}条关系 -> '
+            f'去重后{len(deduped_entities)}个实体/{len(deduped_relations)}条关系'
+        )
+        return {'entities': deduped_entities, 'relations': deduped_relations}
+
+    async def add_knowledge_triples(
+        self, triples: list[tuple[str, str, str]], label: str = 'Entity'
+    ) -> int:
+        if not triples:
+            return 0
+
+        driver = self._get_neo4j_driver()
+        if driver is None:
+            return 0
+
+        success = 0
+        with driver.session() as session:
+            for subject, relation, obj in triples:
+                try:
+                    norm_subj = self.normalize_entity_name(subject)
+                    norm_obj = self.normalize_entity_name(obj)
+                    if not norm_subj or not norm_obj:
+                        continue
+
+                    session.run(
+                        f'MERGE (s:{label} {{name: $subj, normalizedName: $norm_subj}}) '
+                        f'MERGE (o:{label} {{name: $obj, normalizedName: $norm_obj}}) '
+                        f'MERGE (s)-[r:{relation}]->(o) '
+                        'ON CREATE SET r.created_at = datetime(), r.group_id = $gid '
+                        'ON MATCH SET r.updated_at = datetime()',
+                        subj=subject,
+                        norm_subj=norm_subj,
+                        obj=obj,
+                        norm_obj=norm_obj,
+                        gid=self.GROUP_ID,
+                    )
+                    success += 1
+                except Exception as e:
+                    logger.warning(f'写入三元组失败 ({subject}-{relation}->{obj}): {e}')
+
+        logger.info(f'知识三元组写入: {success}/{len(triples)} 条成功')
+        return success
+
     async def add_process_episode(
         self,
         name: str,
@@ -125,6 +329,10 @@ class CADKnowledgeGraph:
             reference_time = datetime.now(timezone.utc)
 
         try:
+            extraction = await self.extract_and_deduplicate_entities(content)
+            deduped_entities = extraction.get('entities', [])
+            deduped_relations = extraction.get('relations', [])
+
             result = await self.graphiti.add_episode(
                 name=name,
                 episode_body=content,
@@ -135,7 +343,8 @@ class CADKnowledgeGraph:
             )
             logger.info(
                 f'已添加知识片段: {name}, '
-                f'提取实体{len(result.nodes)}个, 关系{len(result.edges)}条'
+                f'提取实体{len(result.nodes)}个, 关系{len(result.edges)}条, '
+                f'去重后实体{len(deduped_entities)}个, 关系{len(deduped_relations)}条'
             )
             return result
         except Exception as e:
@@ -149,18 +358,25 @@ class CADKnowledgeGraph:
         reference_time: datetime,
     ):
         try:
-            from neo4j import GraphDatabase
+            driver = self._get_neo4j_driver()
+            if driver is None:
+                from neo4j import GraphDatabase
 
-            driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
+                driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
+
             with driver.session() as session:
                 session.run(
-                    'CREATE (e:Episode {name: $name, content: $content, '
-                    'reference_time: $ref_time, group_id: $group_id, '
-                    'created_at: datetime()})',
+                    'MERGE (e:Episode {name: $name}) '
+                    'ON CREATE SET e.content = $content, '
+                    'e.reference_time = $ref_time, e.group_id = $group_id, '
+                    'e.created_at = datetime(), e.normalizedName = $norm_name '
+                    'ON MATCH SET e.content = $content, '
+                    'e.reference_time = $ref_time, e.updated_at = datetime()',
                     name=name,
                     content=content,
                     ref_time=reference_time.isoformat(),
                     group_id=self.GROUP_ID,
+                    norm_name=self.normalize_entity_name(name),
                 )
 
                 try:
@@ -171,27 +387,56 @@ class CADKnowledgeGraph:
                     material = data.get('材料', '')
                     machine = data.get('机床', '')
 
+                    norm_ft = self.normalize_entity_name(feature_type)
+                    norm_method = self.normalize_entity_name(method)
+                    norm_material = self.normalize_entity_name(material)
+                    norm_machine = self.normalize_entity_name(machine)
+
                     session.run(
                         'MERGE (ft:FeatureType {name: $ft}) '
+                        'ON CREATE SET ft.normalizedName = $norm_ft, ft.created_at = datetime() '
                         'MERGE (m:Method {name: $method}) '
+                        'ON CREATE SET m.normalizedName = $norm_method, m.created_at = datetime() '
                         'MERGE (mt:Material {name: $material}) '
+                        'ON CREATE SET mt.normalizedName = $norm_material, mt.created_at = datetime() '
                         'MERGE (mc:MachineTool {name: $machine}) '
-                        'MERGE (ft)-[:USES_METHOD]->(m) '
-                        'MERGE (m)-[:SUITABLE_FOR]->(ft) '
-                        'MERGE (m)-[:USES_MATERIAL]->(mt) '
-                        'MERGE (m)-[:USES_MACHINE]->(mc) '
+                        'ON CREATE SET mc.normalizedName = $norm_machine, mc.created_at = datetime() '
+                        'MERGE (ft)-[r1:USES_METHOD]->(m) '
+                        'ON CREATE SET r1.created_at = datetime() '
+                        'MERGE (m)-[r2:SUITABLE_FOR]->(ft) '
+                        'ON CREATE SET r2.created_at = datetime() '
+                        'MERGE (m)-[r3:USES_MATERIAL]->(mt) '
+                        'ON CREATE SET r3.created_at = datetime() '
+                        'MERGE (m)-[r4:USES_MACHINE]->(mc) '
+                        'ON CREATE SET r4.created_at = datetime() '
                         'MERGE (e:Episode {name: $name}) '
-                        'MERGE (e)-[:DESCRIBES]->(ft)',
+                        'MERGE (e)-[r5:DESCRIBES]->(ft) '
+                        'ON CREATE SET r5.created_at = datetime()',
                         ft=feature_type,
+                        norm_ft=norm_ft,
                         method=method,
+                        norm_method=norm_method,
                         material=material,
+                        norm_material=norm_material,
                         machine=machine,
+                        norm_machine=norm_machine,
                         name=name,
                     )
+
+                    if route:
+                        norm_route = self.normalize_entity_name(route)
+                        session.run(
+                            'MERGE (r:ProcessRoute {name: $route}) '
+                            'ON CREATE SET r.normalizedName = $norm_route, r.created_at = datetime() '
+                            'MERGE (ft:FeatureType {name: $ft}) '
+                            'MERGE (ft)-[:HAS_ROUTE]->(r)',
+                            route=route,
+                            norm_route=norm_route,
+                            ft=feature_type,
+                        )
                 except (json.JSONDecodeError, Exception):
                     pass
 
-            driver.close()
             logger.info(f'已通过Neo4j直接写入知识片段: {name}')
             return type('Result', (), {'nodes': [], 'edges': []})()
         except Exception as e2:
@@ -274,6 +519,64 @@ class CADKnowledgeGraph:
             logger.warning(f'知识图谱检索失败: {e}')
             return []
 
+    async def search_with_reranking(
+        self, query: str, limit: int = 5, initial_multiplier: int = 3
+    ) -> list[dict]:
+        initial_limit = limit * initial_multiplier
+        items = await self.search_knowledge(query, limit=initial_limit)
+        if not items:
+            return []
+
+        scored_items = []
+        query_lower = query.lower()
+        query_keywords = set(re.findall(r'[\u4e00-\u9fff\w]+', query_lower))
+
+        for item in items:
+            keyword_score = 0.0
+            text_content = ''
+            if item.get('type') == 'edge':
+                text_content = f"{item.get('fact', '')} {item.get('name', '')}"
+            elif item.get('type') == 'node':
+                text_content = f"{item.get('name', '')} {item.get('summary', '')}"
+            elif item.get('type') == 'episode':
+                text_content = f"{item.get('name', '')} {item.get('content', '')}"
+
+            text_lower = text_content.lower()
+            text_keywords = set(re.findall(r'[\u4e00-\u9fff\w]+', text_lower))
+            overlap = query_keywords & text_keywords
+            if query_keywords:
+                keyword_score = len(overlap) / len(query_keywords)
+
+            semantic_score = 0.0
+            if text_content:
+                try:
+                    semantic_score = await self._compute_embedding_similarity(query, text_content)
+                except Exception:
+                    semantic_score = 0.0
+
+            graph_score = 0.0
+            if item.get('type') == 'edge':
+                graph_score = 1.0
+            elif item.get('type') == 'node':
+                graph_score = 0.7
+            elif item.get('type') == 'episode':
+                graph_score = 0.4
+
+            final_score = (
+                self.RERANK_WEIGHT_KEYWORD * keyword_score
+                + self.RERANK_WEIGHT_SEMANTIC * semantic_score
+                + self.RERANK_WEIGHT_GRAPH * graph_score
+            )
+            scored_items.append((final_score, item))
+
+        scored_items.sort(key=lambda x: x[0], reverse=True)
+        reranked = [item for _, item in scored_items[:limit]]
+
+        logger.info(
+            f'检索重排序: 查询"{query}", 初始{len(items)}条 -> 重排序后{len(reranked)}条'
+        )
+        return reranked
+
     async def search_edges(self, query: str, limit: int = 5) -> list:
         if not self.is_connected:
             return []
@@ -308,9 +611,12 @@ class CADKnowledgeGraph:
 
     async def _search_facts_direct(self, query: str, limit: int = 5) -> list[str]:
         try:
-            from neo4j import GraphDatabase
+            driver = self._get_neo4j_driver()
+            if driver is None:
+                from neo4j import GraphDatabase
 
-            driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
+                driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
+
             with driver.session() as session:
                 result = session.run(
                     'MATCH (e:Episode) WHERE e.group_id = $gid '
@@ -325,24 +631,81 @@ class CADKnowledgeGraph:
                     name = record.get('name', '')
                     if content:
                         facts.append(f'{name}: {content[:200]}')
-            driver.close()
             logger.info(f'Neo4j直接检索: 查询"{query}", 返回{len(facts)}条事实')
             return facts[:limit]
         except Exception as e:
             logger.warning(f'Neo4j直接检索也失败: {e}')
             return []
 
+    async def get_graph_statistics(self) -> dict:
+        stats = {
+            'total_nodes': 0,
+            'total_edges': 0,
+            'node_labels': {},
+            'edge_types': {},
+        }
+
+        try:
+            driver = self._get_neo4j_driver()
+            if driver is None:
+                from neo4j import GraphDatabase
+
+                driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
+
+            with driver.session() as session:
+                node_count_result = session.run(
+                    'MATCH (n) RETURN count(n) AS cnt'
+                )
+                record = node_count_result.single()
+                stats['total_nodes'] = record['cnt'] if record else 0
+
+                edge_count_result = session.run(
+                    'MATCH ()-[r]->() RETURN count(r) AS cnt'
+                )
+                record = edge_count_result.single()
+                stats['total_edges'] = record['cnt'] if record else 0
+
+                label_result = session.run(
+                    'MATCH (n) RETURN labels(n) AS lbls, count(n) AS cnt'
+                )
+                for record in label_result:
+                    lbls = record.get('lbls', [])
+                    cnt = record.get('cnt', 0)
+                    for lbl in lbls:
+                        stats['node_labels'][lbl] = stats['node_labels'].get(lbl, 0) + cnt
+
+                rel_result = session.run(
+                    'MATCH ()-[r]->() RETURN type(r) AS rel_type, count(r) AS cnt'
+                )
+                for record in rel_result:
+                    rel_type = record.get('rel_type', '')
+                    cnt = record.get('cnt', 0)
+                    stats['edge_types'][rel_type] = cnt
+
+            logger.info(
+                f'图谱统计: {stats["total_nodes"]}个节点, '
+                f'{stats["total_edges"]}条边, '
+                f'标签类型{len(stats["node_labels"])}, '
+                f'关系类型{len(stats["edge_types"])}'
+            )
+        except Exception as e:
+            logger.warning(f'获取图谱统计信息失败: {e}')
+
+        return stats
+
     async def clear_all_data(self) -> bool:
         try:
-            from neo4j import GraphDatabase
+            driver = self._get_neo4j_driver()
+            if driver is None:
+                from neo4j import GraphDatabase
 
-            driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
+                driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
+
             with driver.session() as session:
                 session.run('MATCH (n) DETACH DELETE n')
                 result = session.run('MATCH (n) RETURN count(n) AS cnt')
                 record = result.single()
                 remaining = record['cnt'] if record else -1
-            driver.close()
             if remaining == 0:
                 logger.info('Neo4j数据库已清空（所有节点和关系已删除）')
                 return True
@@ -356,5 +719,9 @@ class CADKnowledgeGraph:
         if self.graphiti:
             with contextlib.suppress(Exception):
                 await self.graphiti.close()
+        if self._neo4j_driver:
+            with contextlib.suppress(Exception):
+                self._neo4j_driver.close()
+            self._neo4j_driver = None
         self._connected = False
         logger.info('知识图谱连接已关闭')
